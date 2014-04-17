@@ -78,10 +78,10 @@ function is_date_earlier($d1, $d2)
     return true;
 }
 
-function set_vote($post, $user, $date_range)
+function set_vote($post_id, $user_id, $date_range)
 {
     global $wpdb;
-    if (!did_user_vote_for_post($post, $user, $date_range))
+    if (!did_user_vote_for_post($post_id, $user_id, $date_range))
         $wpdb->insert(VOTESDBTABLE, array("post_id"=>$post_id, "user_id"=>$user_id, "vote_daterange_id"=>$date_range)
             ,array("%d","%d","%d"));
 }
