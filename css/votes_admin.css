@@ -1,0 +1,8 @@
+#date_range_table, #date_range_table th, #date_range_table td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+#date_range_table th, #date_range_table td {
+    padding: 4px;
+}
