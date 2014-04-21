@@ -28,7 +28,7 @@ function did_user_vote_for_post($post_id = -1, $user_id=-1, $vote_period=-1)
     }
     else
     {
-        $rs = get_vote($vals['pid'], $vals['uid'], $vote_period);
+        $rs = md2_get_vote($vals['pid'], $vals['uid'], $vote_period);
         if (is_null($rs))
             return false;
         else
@@ -38,12 +38,12 @@ function did_user_vote_for_post($post_id = -1, $user_id=-1, $vote_period=-1)
 
 function get_vote_count_for_user($user_id, $date_range_id)
 {
-    return count(get_votes_for_user($user_id, $date_range_id));
+    return count(md2_get_votes_for_user($user_id, $date_range_id));
 }
 
 function get_vote_count_for_post($post_id, $date_range_id)
 {
-    return count(get_votes_for_post($post_id, $date_range_id));
+    return count(md2_get_votes_for_post($post_id, $date_range_id));
 }
 
 function get_posts_with_votes($date_range_id)

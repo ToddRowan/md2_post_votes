@@ -33,13 +33,13 @@ $tf3 = 8;
         <?php
             echo "<p>Creating four votes for posts.</p>";
             echo "<p>User $user2 votes for post $post2.</p>";
-            set_vote($post2, $user2,$tf1);
+            md2_set_vote($post2, $user2,$tf1);
             echo "<p>User $user5 votes for post $post5.</p>";
-            set_vote($post5, $user5, $tf1); 
+            md2_set_vote($post5, $user5, $tf1); 
             echo "<p>User $user55 votes for post $post5.</p>";
-            set_vote($post5, $user55,$tf1);
+            md2_set_vote($post5, $user55,$tf1);
             echo "<p>User $user2 votes for post $post22.</p>";
-            set_vote($post22, $user2,$tf1);
+            md2_set_vote($post22, $user2,$tf1);
             echo "<p>Votes created: " . count_votes() ."</p>";
         ?>
         <h2>Checking votes for posts</h2>
@@ -84,42 +84,42 @@ $tf3 = 8;
         <?php
             echo "<p>Deleting votes for post $post22 (1)--";
             echo get_vote_count_for_post($post22, $tf1). "</p>";
-            delete_votes_by_post($post22, $tf1);
+            md2_delete_votes_by_post($post22, $tf1);
             echo "<p>How many votes now for post $post22 (0)--";
             echo get_vote_count_for_post($post22, $tf1). "</p>";
             
             echo "<p>Deleting votes for post $post9 (0)--";
             echo get_vote_count_for_post($post9, $tf1). "</p>";
-            delete_votes_by_post($post9, $tf1);
+            md2_delete_votes_by_post($post9, $tf1);
             echo "<p>How many votes now for post $post9 (0)--";
             echo get_vote_count_for_post($post9, $tf1). "</p>";
         ?>        
         <?php
             echo "<p>Deleting votes for user $user2 (1)--";
             echo get_vote_count_for_user($user2, $tf1). "</p>";
-            delete_votes_by_user($user2, $tf1);
+            md2_delete_votes_by_user($user2, $tf1);
             echo "<p>How many posts now voted by user $user2 (0)--";
             echo get_vote_count_for_user($user2, $tf1). "</p>";
             
             echo "<p>Deleting likes for user $user55 (1)--";
             echo get_vote_count_for_user($user55, $tf1). "</p>";
-            delete_votes_by_user($user55, $tf1);
+            md2_delete_votes_by_user($user55, $tf1);
             echo "<p>How many posts now voted $user55 (0)--";
             echo get_vote_count_for_user($user55, $tf1). "</p>";
             
             echo "<p>Deleting likes for user $user8 (0)--";
             echo get_vote_count_for_user($user8, $tf1). "</p>";
-            delete_votes_by_user($user8, $tf1);
+            md2_delete_votes_by_user($user8, $tf1);
             echo "<p>How many posts now voted $user8 (0)--";
             echo get_vote_count_for_user($user8, $tf1). "</p>";
         ?>
         <h2> Creating dupe votes</h2>
         <?php
             echo "<p>User $user2 votes for post $post2.</p>";
-            set_vote($post2, $user2, $tf1);
+            md2_set_vote($post2, $user2, $tf1);
             echo "<p>Vote count for post  $post2: " . get_vote_count_for_post($post2, $tf1) . "</p>";
             echo "<p>User $user2 votes for post $post2 again.</p>";
-            set_vote($post2, $user2, $tf1);
+            md2_set_vote($post2, $user2, $tf1);
             echo "<p>Vote count for post  $post2: " . get_vote_count_for_post($post2, $tf1) . "</p>";
         ?>   
     </body>
