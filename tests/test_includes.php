@@ -6,6 +6,34 @@
  * and open the template in the editor.
  */
 
+function clear_vote_suggestion_table()
+{
+    global $wpdb;
+    $sql = "DELETE FROM ". VOTESUGGESTIONSDBTABLE;
+    $wpdb->query($sql);    
+}
+
+function count_suggestions()
+{
+    global $wpdb;
+    $sql = "SELECT COUNT(*) FROM " . VOTESUGGESTIONSDBTABLE;
+    return $wpdb->get_var($sql);
+}
+
+function clear_vote_comment_table()
+{
+    global $wpdb;
+    $sql = "DELETE FROM ". VOTECOMMENTSDBTABLE;
+    $wpdb->query($sql);    
+}
+
+function count_comments()
+{
+    global $wpdb;
+    $sql = "SELECT COUNT(*) FROM " . VOTECOMMENTSDBTABLE;
+    return $wpdb->get_var($sql);
+}
+
 function clear_date_ranges_table()
 {
     global $wpdb;

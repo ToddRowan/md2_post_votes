@@ -30,7 +30,7 @@ function md2_generate_vote_options()
             foreach ($res as $date_range)
             {                
                 echo "<tr><td>".date( 'M j, Y', strtotime($date_range->start_date))."</td><td>".date( 'M j, Y', strtotime($date_range->end_date))."</td>";
-                echo "<td></td><td></td><td></td></tr>";             
+                echo "<td>" . ($date_range->is_voting_eligible==='0'?'No':'Yes') . "</td><td></td><td></td></tr>";             
             }
             echo "</table>";               
         ?>

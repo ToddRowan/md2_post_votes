@@ -26,17 +26,17 @@ Date of post creation for voting and discussion (needs time limit for visibility
   */ 
 
 define("VOTESDBTABLE", $wpdb->prefix . ($wpdb->prefix==='wp_md2_'?'':'md2_') . "votes");
-define("VOTECOMMENTSDBTABLE", $wpdb->prefix . ($wpdb->prefix==='wp_md2_'?'':'md2_') . "vote_comments");
-define("VOTESUGGESTIONSDBTABLE", $wpdb->prefix . ($wpdb->prefix==='wp_md2_'?'':'md2_') . "vote_suggestions");
 define("SELECTEDPOSTSDBTABLE", $wpdb->prefix . ($wpdb->prefix==='wp_md2_'?'':'md2_') . "vote_winners");
 
-require ("model/md2_date_range_model.php");
+require ("models/md2_vote_date_range_model.php");
+require ("models/md2_vote_comments_model.php");
+require ("models/md2_vote_suggestions_model.php");
 
 function md2_get_posts_by_post_date_range($date_range_id)
 {
     global $wpdb;
     $range = md2_get_vote_date_range_by_id($id);
-    // Need query that grabs by comment as well as post id. 
+
     $sql = "SELECT * FROM " . $wpdb->posts. " WHERE `post_type`='post' AND `post_status`='publish' ";
     $sql .= "AND `post_date` BETWEEN '". $range->start_date ."' AND '". $range->end_date ."' ORDER BY `post_date` DESC";
     
