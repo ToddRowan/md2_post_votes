@@ -6,6 +6,20 @@
  * and open the template in the editor.
  */
 
+function clear_eligible_posts_table()
+{
+    global $wpdb;
+    $sql = "DELETE FROM ". ELIGIBLEPOSTSDBTABLE;
+    $wpdb->query($sql);    
+}
+
+function count_eligible_posts()
+{
+    global $wpdb;
+    $sql = "SELECT COUNT(*) FROM " . ELIGIBLEPOSTSDBTABLE;
+    return $wpdb->get_var($sql);
+}
+
 function clear_vote_suggestion_table()
 {
     global $wpdb;

@@ -31,6 +31,7 @@ define("SELECTEDPOSTSDBTABLE", $wpdb->prefix . ($wpdb->prefix==='wp_md2_'?'':'md
 require ("models/md2_vote_date_range_model.php");
 require ("models/md2_vote_comments_model.php");
 require ("models/md2_vote_suggestions_model.php");
+require ("models/md2_eligible_posts_model.php");
 
 function md2_get_posts_by_post_date_range($date_range_id)
 {
@@ -61,11 +62,6 @@ function md2_get_posts_by_comment_date_range($date_range_id)
     $posts = $wpdb->get_results($sql);
     
     return $posts;
-}
-
-function md2_get_votes_by_date_range($date_range)
-{
-    
 }
 
 function md2_set_vote($post_id, $user_id, $date_range)
