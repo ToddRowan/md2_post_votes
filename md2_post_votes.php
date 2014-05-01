@@ -50,3 +50,8 @@ function get_posts_with_votes($date_range_id)
 {
     
 }
+
+function md2_get_process_vote_action_url()
+{
+    return  plugins_url('md2_process_votes.php', __FILE__) ; 
+}

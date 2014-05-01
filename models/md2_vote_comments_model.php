@@ -76,6 +76,15 @@ function md2_delete_vote_comment($user_id, $post_id, $date_range_id)
     return $wpdb->query($sql);
 }
 
+function md2_delete_vote_comments_by_user_and_daterange($user_id, $date_range_id)
+{
+    global $wpdb;
+    
+    $sql = "DELETE FROM " . VOTECOMMENTSDBTABLE . 
+           " WHERE `user_id`=$user_id AND `date_range_id`=$date_range_id";
+    return $wpdb->query($sql);
+}
+
 function md2_delete_vote_comments_by_user($user_id)
 {
     global $wpdb;

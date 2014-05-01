@@ -36,9 +36,9 @@ require ("models/md2_eligible_posts_model.php");
 function md2_get_posts_by_post_date_range($date_range_id)
 {
     global $wpdb;
-    $range = md2_get_vote_date_range_by_id($id);
+    $range = md2_get_vote_date_range_by_id($date_range_id);
 
-    $sql = "SELECT * FROM " . $wpdb->posts. " WHERE `post_type`='post' AND `post_status`='publish' ";
+    $sql = "SELECT ID as post_id, post_date FROM " . $wpdb->posts. " WHERE `post_type`='post' AND `post_status`='publish' ";
     $sql .= "AND `post_date` BETWEEN '". $range->start_date ."' AND '". $range->end_date ."' ORDER BY `post_date` DESC";
     
     $posts = $wpdb->get_results($sql);
@@ -49,9 +49,9 @@ function md2_get_posts_by_post_date_range($date_range_id)
 function md2_get_posts_by_comment_date_range($date_range_id)
 {
     global $wpdb;
-    $range = md2_get_vote_date_range_by_id($id);
+    $range = md2_get_vote_date_range_by_id($date_range_id);
     
-    $sql =  "SELECT DISTINCT wp_posts.*, wpc.comment_date";
+    $sql =  "SELECT DISTINCT wp_posts.id as post_id, wpc.comment_date as post_date";
     $sql .= "FROM wp_md2_posts wp_posts ";
     $sql .= "JOIN wp_md2_comments wpc ON wpc.comment_post_id = wp_posts.id ";
     $sql .= "WHERE post_type = 'post' AND post_status = 'publish' ";
@@ -110,6 +110,13 @@ function md2_delete_votes_by_user($user_id)
 {
     global $wpdb;
     $sql = "DELETE FROM " . VOTESDBTABLE . " WHERE `user_id` = $user_id";
+    $wpdb->query($sql); 
+}
+
+function md2_delete_votes_by_user_and_date_range($user_id, $date_range_id)
+{
+    global $wpdb;
+    $sql = "DELETE FROM " . VOTESDBTABLE . " WHERE `user_id` = $user_id AND `vote_daterange_id` = $date_range_id";
     $wpdb->query($sql); 
 }
 
