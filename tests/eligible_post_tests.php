@@ -43,6 +43,8 @@ $post4 = 4;
             
             echo "<p>Post $post4 is eligible for range $dr4 with date $ds4.</p>";
             md2_add_eligible_post($post4, $dr4, $ds4);
+            echo "<p>Post $post3 is eligible for range $dr4 with date $ds4.</p>";
+            md2_add_eligible_post($post3, $dr4, $ds4);
             
             echo "<p>Trying post $post4 is eligible for range $dr4 with date $ds4 again.</p>";
             md2_add_eligible_post($post4, $dr4, $ds4);
@@ -68,6 +70,26 @@ $post4 = 4;
             echo "<p>Eligible posts existing: " . count_eligible_posts() ."</p>";
         ?>
         
+        <h2>Selecting selected posts for review</h2>
+        <?php
+            echo "<p>Getting selected posts in range $dr4.</p>";
+            md2_set_eligible_post_selection_status($post4, $dr4);
+            $eligible_posts = md2_get_selected_eligible_posts($dr4);
+            foreach($eligible_posts as $ep)
+            {
+                echo "<p>Post number $ep is selected</p>";
+            }
+            echo "<p>Done.</p>";
+            
+            echo "<p>Getting unselected posts in range $dr4.</p>";
+            $eligible_posts = md2_get_unselected_eligible_posts($dr4);
+            foreach($eligible_posts as $ep)
+            {
+                echo "<p>Post number $ep is not selected</p>";
+            }
+            echo "<p>Done.</p>";
+        ?>
+        
         <h2>Eligible posts delete</h2>
         <p>Killing off all eligible posts</p>
         <?php
@@ -75,6 +97,7 @@ $post4 = 4;
             md2_delete_eligible_post_by_date_range($dr2);
             md2_delete_eligible_post_by_id_and_date_range($post3, $dr3);
             md2_delete_eligible_post_by_id_and_date_range($post4, $dr4);
+            md2_delete_eligible_post_by_date_range($dr4);
             echo "<p>Eligible posts existing: " . count_eligible_posts() ."</p>";        
         ?>
 </html>

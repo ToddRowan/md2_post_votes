@@ -31,6 +31,11 @@ function processComment($idstr,$val,&$comments)
     }
 }
 
+function processGeneralComment($comment_text)
+{
+    
+}
+
 // If user not logged in, do nothing.
 if (is_user_logged_in())
 {
@@ -51,6 +56,10 @@ if (is_user_logged_in())
             if (startsWith($k, VOTECOMMENTPREFIX))
             {
                 processComment($k,$v,$commentsToSet);
+            }
+            if ($k == 'general_comment')
+            {
+                md2_create_vote_suggestion($user_id, $date_range_id, $v);
             }
         }
         

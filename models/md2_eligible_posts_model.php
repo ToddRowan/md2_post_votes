@@ -4,7 +4,8 @@
   CREATE TABLE `wp_md2_vote_eligible_posts` (
   `post_id` bigint(20) NOT NULL,
   `date_range_id` bigint(20) NOT NULL,
-  `sort_date` datetime NOT NULL
+  `sort_date` datetime NOT NULL,
+  `is_selected` bit(1) NOT NULL DEFAULT b'0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
  */
 
@@ -63,6 +64,29 @@ function md2_delete_eligible_post_by_id_and_date_range($post_id, $date_range_id)
     global $wpdb;
     $sql = "DELETE FROM " . ELIGIBLEPOSTSDBTABLE . " WHERE `post_id` = $post_id AND `date_range_id` = $date_range_id";
     $wpdb->query($sql);
+}
+
+function md2_set_eligible_post_selection_status($post_id, $date_range_id, $status=1)
+{
+    global $wpdb;
+        
+    $wpdb->update( ELIGIBLEPOSTSDBTABLE, 
+            array("is_selected"=>$status), 
+            array("post_id"=>$post_id, "date_range_id"=>$date_range_id),
+            array("%d"), 
+            array("%d","%d")); 
+}
+
+function md2_get_selected_eligible_posts($date_range_id, $status=1)
+{
+    global $wpdb;
+    $sql = "SELECT `post_id` FROM " . ELIGIBLEPOSTSDBTABLE . " WHERE `date_range_id` = $date_range_id AND `is_selected` = $status ORDER BY `sort_date` DESC";
+    return $wpdb->get_col($sql);
+}
+
+function md2_get_unselected_eligible_posts($date_range_id)
+{
+    return md2_get_selected_eligible_posts($date_range_id, 0);
 }
 
 function md2_is_post_eligible_for_date_range($post_id, $date_range_id)
