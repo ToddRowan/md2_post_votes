@@ -14,6 +14,23 @@ function md2_create_vote_date_range($start, $end)
         return false;
 }
 
+function md2_update_vote_date_range($id, $values)
+{
+    global $wpdb;
+    
+    if (isset($values['start_date']))
+    {
+        $values['start_date'] = make_mysql_date(date_parse($values['start_date']));
+    }
+    
+    if (isset($values['end_date']))
+    {
+        $values['end_date'] = make_mysql_date(date_parse($values['end_date']));
+    }
+    
+    $wpdb->update( TIMEFRAMEDBTABLE, $values, array('id'=> $id));
+}
+
 function md2_get_vote_date_range_by_id($id)
 {
     global $wpdb;
@@ -25,6 +42,39 @@ function md2_get_all_date_ranges()
 {
     global $wpdb;
     $sql = "SELECT * FROM " . TIMEFRAMEDBTABLE . " ORDER BY `start_date` DESC";
+    return $wpdb->get_results($sql);
+}
+
+function md2_is_date_range_activatable($id)
+{
+    $activatable = true;
+    $now = time();
+    /*
+      Has the range been processed already (is locked)?
+      Are any of the dates in the future?
+      Are any other ranges currently active?
+     */
+    
+    $range = md2_get_vote_date_range_by_id($id);
+    
+    if ($range->is_locked==='y')
+        $activatable = false;
+    else if ($now < strtotime( $range->start_date ) || $now < strtotime( $range->end_date ))        
+        $activatable = false;
+    else if (count(md2_get_active_date_ranges($id)) > 0)
+        $activatable = false;
+     
+    return $activatable;
+}
+
+function md2_get_active_date_ranges($exclude_id = -1)
+{
+    global $wpdb;
+    $sql = "SELECT * FROM " . TIMEFRAMEDBTABLE . " WHERE `is_locked`='y' ";
+    $sql .= ($exclude_id != -1 ? " AND NOT `id`=$exclude_id ": "");
+    $sql .= "AND (`is_voting_eligible` = 'y' OR ";
+    $sql .= "(`is_voting_eligible`='n' AND `meeting_mail_sent`='n' )) ";
+    $sql .= "ORDER BY `start_date` DESC";
     return $wpdb->get_results($sql);
 }
 

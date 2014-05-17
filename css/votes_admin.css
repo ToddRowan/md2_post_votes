@@ -6,3 +6,12 @@
 #date_range_table th, #date_range_table td {
     padding: 4px;
 }
+
+.edit, .activate, #date_range_edit_reset {
+    color: blue;
+    cursor: pointer;
+}
+
+#date_range_edit_reset {
+    display: none;    
+}

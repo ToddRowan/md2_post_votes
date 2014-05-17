@@ -29,18 +29,22 @@ function md2_generate_vote_options()
             echo "<table id=\"date_range_table\"><th>Start</th><th>End</th><th>Voting open</th><th>Eligible posts</th><th>Activate</th><th>Edit dates</th>";
             foreach ($res as $date_range)
             {                
-                echo "<tr><td>".date( 'M j, Y', strtotime($date_range->start_date))."</td><td>".date( 'M j, Y', strtotime($date_range->end_date))."</td>";
-                echo "<td>" . (ord($date_range->is_voting_eligible)?'Yes':'No') . "</td><td>" . md2_get_total_count_of_posts_by_date_range($date_range->id) . "</td><td></td><td></td></tr>";             
+                echo "<tr><td><span id=\"start_date-". $date_range->id . '">' . date( 'M j, Y', strtotime($date_range->start_date))."</span></td>";
+                echo "<td><span id=\"end_date-". $date_range->id . '">' . date( 'M j, Y', strtotime($date_range->end_date))."</span></td>";
+                echo "<td>" . ($date_range->is_voting_eligible==='y'?'Yes':'No') . "</td>";
+                echo "<td>" . md2_get_total_count_of_posts_by_date_range($date_range->id) . "</td>";
+                echo "<td>" . (md2_is_date_range_activatable($date_range->id)?'<span class="activate" id="activate-' . $date_range->id . '">Activate</span>':"") ."</td>";
+                echo "<td>" . ($date_range->is_locked==='y'?'':'<span class="edit" id="edit-' . $date_range->id . '">Edit</span>') . "</td></tr>";             
             }
             echo "</table>";               
         ?>
        
-        <form action="<?php echo plugins_url('md2_vote_options_post.php', __FILE__);?>" method="post">
+        <form action="<?php echo plugins_url('md2_vote_options_post.php', __FILE__);?>" method="post" id="md2_date_form">
             <p id="newVoteRange">
                 <input id="md2_date_range_start" name="md2_date_range_start" type="text" class="date start" /> <br>to<br>
                 <input id="md2_date_range_end" name="md2_date_range_end" type="text" class="date end" />
             </p>
-            <button type="submit">Add a new date range</button>
+            <button type="submit" id="date_range_submit">Add a new date range</button>&nbsp;<span id="date_range_edit_reset">Cancel</span>
         </form>
     </div> <!-- div.wrap -->
     

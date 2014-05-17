@@ -51,13 +51,13 @@ function md2_get_posts_by_comment_date_range($date_range_id)
     global $wpdb;
     $range = md2_get_vote_date_range_by_id($date_range_id);
     
-    $sql =  "SELECT DISTINCT wp_posts.id as post_id, wpc.comment_date as post_date";
-    $sql .= "FROM wp_md2_posts wp_posts ";
-    $sql .= "JOIN wp_md2_comments wpc ON wpc.comment_post_id = wp_posts.id ";
+    $sql =  "SELECT DISTINCT wp_posts.id as post_id, {$wpdb->comments}.comment_date as post_date ";
+    $sql .= "FROM {$wpdb->posts} wp_posts ";
+    $sql .= "JOIN {$wpdb->comments} ON {$wpdb->comments}.comment_post_id = wp_posts.id ";
     $sql .= "WHERE post_type = 'post' AND post_status = 'publish' ";
-    $sql .= "AND (wp_posts.post_date < '". $range->start_date ."' AND wpc.comment_date BETWEEN '". $range->start_date ."' AND '". $range->end_date ."') ";
+    $sql .= "AND (wp_posts.post_date < '". $range->start_date ."' AND {$wpdb->comments}.comment_date BETWEEN '". $range->start_date ."' AND '". $range->end_date ."') ";
     $sql .= "GROUP BY wp_posts.ID ";
-    $sql .= "ORDER BY wpc.comment_date DESC";
+    $sql .= "ORDER BY {$wpdb->comments}.comment_date DESC";
     
     $posts = $wpdb->get_results($sql);
     
