@@ -64,6 +64,21 @@ function md2_get_posts_by_comment_date_range($date_range_id)
     return $posts;
 }
 
+function md2_get_count_of_posts_by_post_date_range($date_range_id)
+{
+    return count(md2_get_posts_by_post_date_range($date_range_id));
+}
+
+function md2_get_count_of_posts_by_comment_date_range($date_range_id)
+{
+    return count(md2_get_posts_by_comment_date_range($date_range_id));
+}
+
+function md2_get_total_count_of_posts_by_date_range($date_range_id)
+{
+    return md2_get_count_of_posts_by_post_date_range($date_range_id) + md2_get_count_of_posts_by_comment_date_range($date_range_id);
+}
+
 function md2_set_vote($post_id, $user_id, $date_range)
 {
     global $wpdb;

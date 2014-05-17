@@ -58,7 +58,7 @@ function md2_get_vote_comments_by_date_range($date_range_id)
     
     return $wpdb->get_results($sql);
 }
-function md2_get_vote_comments_by_post_id_and_date_range($post_id, $date_range_id)
+function md2_get_vote_comments_by_post_id_and_date_range($post_id, $date_range_id, $with_vote = true)
 {
     global $wpdb;
     $sql = "SELECT * FROM " . VOTECOMMENTSDBTABLE . 

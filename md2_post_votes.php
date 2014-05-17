@@ -55,3 +55,21 @@ function md2_get_process_vote_action_url()
 {
     return  plugins_url('md2_process_votes.php', __FILE__) ; 
 }
+
+function md2_orderby_modification($orderby, $wpquery)
+{
+    // Necessary b/c we're on WP 3.3.2 and not 3.5
+    global $wpdb;
+    if ($wpquery->query_vars['orderby'] === 'post__in' 
+            && is_array($wpquery->query_vars['post__in'])
+            && count($wpquery->query_vars['post__in'])>0)
+    {
+        return "FIELD( {$wpdb->posts}.ID, " . implode(",", $wpquery->query_vars['post__in']). " )";
+    }
+    else 
+    {
+        return $orderby;
+    }
+}
+
+add_filter('posts_orderby', 'md2_orderby_modification',2,2);

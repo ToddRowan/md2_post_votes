@@ -14,17 +14,37 @@ $ds2 = "2015-02-15 05:14:59";
 $ds3 = "2016-03-31 18:32:00";
 $ds4 = "2015-04-12 01:01:01";
 
-$post2 = 2;
+$post2 = 5;
 $post1 = 1;
-$post3 = 3;
-$post4 = 4;
+$post3 = 17;
+$post4 = 20;
 
 ?>
     <head>
-        
+        <title>Post ordering testing, as well as eligible tests</title>
     </head>
     <body>
         <h1>Starting tests</h1>
+        
+        <h2>Ordering posts</h2>
+        
+        <?php
+        $idsarray = array(20,5,1,17);
+        $idslist = implode(",",$idsarray);
+        
+        $post_args = array(
+		'posts_per_page'   => 99,
+		'orderby'          =>'post__in',
+                'suppress_filters' => 0,
+                'bullshit_arg' => true,
+		'post__in'         => $idsarray ); 
+	
+	$posts_array = get_posts( $post_args );
+        
+        echo "<p>Got this many posts: " . count($posts_array) . ".</p>";
+        
+        ?>
+        
         <?php 
             echo "<p>About to clear vote suggestion table.</p>";
             clear_vote_suggestion_table();

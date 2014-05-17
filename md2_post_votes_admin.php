@@ -21,16 +21,16 @@ function md2_generate_vote_options()
         <div id="icon-options-general" class="icon32"><br /></div>
         <h2>Voting configuration</h2>
         <?php 
-            $res = md2_get_all_date_ranges()        
+            $res = md2_get_all_date_ranges();
         ?>
         <p>Here are the <?php echo count($res); ?> saved date ranges that exist in the system.</p>
         
         <?php
-            echo "<table id=\"date_range_table\"><th>Start</th><th>End</th><th>Active</th><th>Votes</th><th>Edit</th>";
+            echo "<table id=\"date_range_table\"><th>Start</th><th>End</th><th>Voting open</th><th>Eligible posts</th><th>Activate</th><th>Edit dates</th>";
             foreach ($res as $date_range)
             {                
                 echo "<tr><td>".date( 'M j, Y', strtotime($date_range->start_date))."</td><td>".date( 'M j, Y', strtotime($date_range->end_date))."</td>";
-                echo "<td>" . ($date_range->is_voting_eligible==='0'?'No':'Yes') . "</td><td></td><td></td></tr>";             
+                echo "<td>" . (ord($date_range->is_voting_eligible)?'Yes':'No') . "</td><td>" . md2_get_total_count_of_posts_by_date_range($date_range->id) . "</td><td></td><td></td></tr>";             
             }
             echo "</table>";               
         ?>

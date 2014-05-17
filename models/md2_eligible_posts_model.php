@@ -14,14 +14,14 @@ define("ELIGIBLEPOSTSDBTABLE", $wpdb->prefix . ($wpdb->prefix==='wp_md2_'?'':'md
 function md2_get_eligible_posts_by_date_range($date_range_id)
 {
     global $wpdb;
-    $sql = "SELECT * FROM " . ELIGIBLEPOSTSDBTABLE . " WHERE `date_range_id` = " . $date_range_id . " ORDER BY `sort_date`";
+    $sql = "SELECT * FROM " . ELIGIBLEPOSTSDBTABLE . " WHERE `date_range_id` = " . $date_range_id . " ORDER BY `sort_date` DESC";
     return $wpdb->get_results($sql);
 }
 
 function md2_get_eligible_post_ids_by_date_range($date_range_id)
 {
     global $wpdb;
-    $sql = "SELECT `post_id` FROM " . ELIGIBLEPOSTSDBTABLE . " WHERE `date_range_id` = " . $date_range_id . " ORDER BY `sort_date`";
+    $sql = "SELECT `post_id` FROM " . ELIGIBLEPOSTSDBTABLE . " WHERE `date_range_id` = " . $date_range_id . " ORDER BY `sort_date` DESC";
     return $wpdb->get_col($sql);
 }
 
