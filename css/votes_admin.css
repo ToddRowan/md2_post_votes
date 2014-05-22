@@ -1,3 +1,25 @@
+#date_range_blade {
+    position: relative;
+}
+
+#new_date_range_form {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: none;
+    background-color: rgba(0,0,0,.75);   
+}
+#new_date_range_form form {
+    width: 190px;
+    background-color: white;
+    padding: 20px;
+    margin-left: 50px;
+    margin-top: 50px;
+    border: 3px solid black;    
+}
+
 #date_range_table, #date_range_table th, #date_range_table td {
     border: 1px solid black;
     border-collapse: collapse;
@@ -7,11 +29,47 @@
     padding: 4px;
 }
 
-.edit, .activate, #date_range_edit_reset {
+.edit, .activate, #date_range_edit_reset, #add_new_date_range {
     color: blue;
     cursor: pointer;
 }
 
 #date_range_edit_reset {
-    display: none;    
+    display: none; 
+}
+
+.center {
+    text-align: center;
+}
+
+.select {
+    cursor: pointer;
+    background: transparent url('http://www.md2.com/portal/wp-content/themes/inove/img/icons.gif') no-repeat scroll 0px -80px;
+    min-height: 15px;
+    min-width: 16px;
+    display: inline-block;
+}
+
+.selected_row {
+    background-color: rgba(0,0,0,.15);
+}
+
+.selected_row .select {
+    display: none;
+}
+
+.data_column {
+    display: none;
+}
+
+span.meeting_note {
+    font-weight: bold;
+}
+
+.time {
+    width: 60px;
+}
+
+.date {
+    width: 95px;
 }

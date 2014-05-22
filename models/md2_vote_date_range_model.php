@@ -61,16 +61,22 @@ function md2_is_date_range_activatable($id)
         $activatable = false;
     else if ($now < strtotime( $range->start_date ) || $now < strtotime( $range->end_date ))        
         $activatable = false;
-    else if (count(md2_get_active_date_ranges($id)) > 0)
+    else if ($range->vote_mail_sent==='y')
+        $activatable = false;
+    else if (count(md2_get_active_date_ranges($id)) > 0) 
         $activatable = false;
      
     return $activatable;
 }
 
+/*
+ * Need a definitive definition of what consitutes active and thus
+ * precludes any other range from being activated. Actively. 
+ */
 function md2_get_active_date_ranges($exclude_id = -1)
 {
     global $wpdb;
-    $sql = "SELECT * FROM " . TIMEFRAMEDBTABLE . " WHERE `is_locked`='y' ";
+    $sql = "SELECT * FROM " . TIMEFRAMEDBTABLE . " WHERE `is_locked`='n' ";
     $sql .= ($exclude_id != -1 ? " AND NOT `id`=$exclude_id ": "");
     $sql .= "AND (`is_voting_eligible` = 'y' OR ";
     $sql .= "(`is_voting_eligible`='n' AND `meeting_mail_sent`='n' )) ";
