@@ -43,20 +43,20 @@ function md2_generate_grand_rounds_admin()
 function md2_date_range_config_blade(&$res)
 {
     ?>
-    <p>Here are the <?php echo count($res); ?> saved date ranges that exist in the system. <span id="add_new_date_range">Add new.</span></p>
-        
+    <p>Here are the <?php echo count($res); ?> saved date ranges that exist in the system. <span id="add_new_date_range">Add new.</span></p> 
     <?php
-        echo "<table id=\"date_range_table\"><tr><th>Select</th><th>Start</th><th>End</th><th>Voting status</th><th>Eligible posts</th><th>Activate</th><th>Edit dates</th></tr>";
+        echo "<table id=\"date_range_table\"><tr><th>Select/Edit</th><th>Start</th><th>End</th><th>Status</th><th>Eligible posts</th><th>Activate</th></tr>";
         $selected = false;
         foreach ($res as $date_range)
         {                
-            echo "<tr " . (!$selected?'class="selected_row" ':"") . "id=\"dr_row-" . $date_range->id . "\"><td class=\"center\">" . '<div class="select" id="select-'. $date_range->id . '"></div>' . "</td>";
+            echo "<tr " . (!$selected?'class="selected_row" ':"") . "id=\"dr_row-" . $date_range->id . "\"><td class=\"center\">" . '<div class="select" id="select-'. $date_range->id . '" title="Select this row"></div>';
+            echo ($date_range->process_state<=MD2_STATE_NOT_USED?'<div class="edit" id="edit-'. $date_range->id . '" title="Edit post selection dates"></div>':'').'</td>';
             echo "<td><span id=\"start_date-". $date_range->id . '">' . date( 'M j, Y', strtotime($date_range->start_date))."</span></td>";
             echo "<td><span id=\"end_date-". $date_range->id . '">' . date( 'M j, Y', strtotime($date_range->end_date))."</span></td>";
-            echo "<td>" . md2_output_voting_status($date_range) . "</td>";
+            echo "<td>" . md2_get_state_text($date_range->process_state) . "</td>";
             echo "<td>" . md2_get_total_count_of_posts_by_date_range($date_range->id) . "</td>";
-            echo "<td>" . (md2_is_date_range_activatable($date_range->id)?'<span class="activate" id="activate-' . $date_range->id . '">Activate</span>':"") ."</td>";
-            echo "<td>" . ($date_range->is_locked==='y'||$date_range->is_voting_eligible==='y'||$date_range->vote_mail_sent==='y'?'':'<span class="edit" id="edit-' . $date_range->id . '">Edit</span>') . "</td>";
+            echo "<td class=\"activate_cell\">" . (md2_is_date_range_activatable($date_range->id)?'<span class="activate" id="activate-' . $date_range->id . '">Activate</span>':"") ."</td>";
+            //echo "<td><span class=\"activator" . (md2_is_date_range_activatable($date_range->id)?' activate" ':''). ' id="activate-' . $date_range->id . '">Activate</span></td>';
             echo "<td class=\"data_column\"><div id=\"data-block-" . $date_range->id . "\">";
             echo "<span class=\"is_locked\">{$date_range->is_locked}</span>";
             echo "<span class=\"is_voting_eligible\">{$date_range->is_voting_eligible}</span>";
@@ -72,6 +72,7 @@ function md2_date_range_config_blade(&$res)
             echo "<span class=\"phone_number\">{$date_range->phone_number}</span>";
             echo "<span class=\"meeting_id\">{$date_range->meeting_id}</span>";
             echo "<span class=\"meeting_note\">{$date_range->meeting_note}</span>";
+            echo "<span class=\"process_state\">{$date_range->process_state}</span>";
             echo "</div><!-- end data block --></td></tr>";
             $selected = true;
         }
@@ -99,12 +100,14 @@ function md2_vote_period_config_blade(&$res)
     //   Includes Save and activate.
     // Uneditable dates
     ?>
+    <p class="vote_not_activated">This period has not been activated.</p>
+    
     <p class="voteopen">Voting for this period will begin on <input class="date date_vote_email_sent" name="date_vote_email_sent" type="text">
         and end on <input class="date date_voting_ended" name="date_voting_ended" type="text">.</p>
     <p class="voteclosed">Voting for this period was open from <span class="date_vote_email_sent"></span> 
         to <span class="date_voting_ended"></span>.</p>
 
-    <p class="meetopen">The announcement email for rounds meeting will be sent on 
+    <p class="meetopen">The announcement email for the rounds meeting will be sent on 
         <input class="date date_meet_email_sent" name="date_meet_email_sent" type="text">.</p>
     <p class="meetclosed">The announcement email for this period was sent on <span class="date_meet_email_sent"></span>.</p>
     
@@ -116,11 +119,14 @@ function md2_vote_period_config_blade(&$res)
         from <span class="time_meet_start"></span> to <span class="time_meet_end"></span>.</p>        
         
     <p class="meetopen">Callers will dial <input class="phone_number" name="phone_number" type="text"> and use the code <input class="meeting_id" name="meeting_id" type="text">.</p>
-    <p class="meetclosed">Callers dialed <span class="phone_number"></span> and used the code <span class="meeting_id"></span>.</p>
+    <p class="meetclosed">Callers were instructed to dial <span class="phone_number"></span> and use the code <span class="meeting_id"></span>.</p>
 
     <p class="meetopen">Any additional info or special instructions? <input class="meeting_note" name="meeting_note" type="text"></p>
     <p class="meetclosed">Callers were instructed to also do the following: <span class="meeting_note"></span></p>
-
+    
+    <input type="hidden" name="dr_id" id="dr_id">
+    <input type="hidden" name="act" id="activate_state" value="update">
+    <input type="button" title="Activate" value="Activate" id="activate_button">
     
     <?php
 }
@@ -166,16 +172,32 @@ function md2_format_view_date($d)
     }
 }
 
-function md2_output_voting_status($dr)
+function md2_get_state_text($state)
 {
-    if ($dr->is_locked==='y')
-        return 'Archived';
-    if ($dr->is_voting_eligible==='y')
-        return 'Voting';    
-    if ($dr->vote_mail_sent==='n')
-        return 'Not activated';
+    $txt = "";
+    switch($state)
+    {
+        case MD2_STATE_NOT_USED:
+            $txt = "Unused";
+            break;
+        case MD2_STATE_ACTIVATED:
+            $txt = "Active, not started";
+            break;
+        case MD2_STATE_VOTE_MAIL_SENT:
+            $txt = "Voting active";
+            break;
+        case MD2_STATE_VOTE_COMPLETED:
+            $txt = "Voting completed";
+            break;
+        case MD2_STATE_MEET_MAIL_SENT:
+            $txt = "Meeting invite sent";
+            break;
+        case MD2_STATE_ARCHIVED:
+            $txt = "Archived";
+            break;            
+    }
     
-    return 'In progress'; 
+    return $txt;
 }
 
 

@@ -14,9 +14,9 @@
 #new_date_range_form form {
     width: 190px;
     background-color: white;
-    padding: 20px;
+    padding: 10px;
     margin-left: 50px;
-    margin-top: 50px;
+    margin-top: 10px;
     border: 3px solid black;    
 }
 
@@ -29,11 +29,22 @@
     padding: 4px;
 }
 
-.edit, .activate, #date_range_edit_reset, #add_new_date_range {
+#date_range_table .edit, .activate, #date_range_edit_reset, #add_new_date_range {
     color: blue;
     cursor: pointer;
 }
 
+.activator {
+  display: none;
+}
+
+.activate {
+  display: inline;
+}
+
+#activate_button {
+  display: none;
+}
 #date_range_edit_reset {
     display: none; 
 }
@@ -42,12 +53,24 @@
     text-align: center;
 }
 
-.select {
+.select, #date_range_table .edit {
     cursor: pointer;
-    background: transparent url('http://www.md2.com/portal/wp-content/themes/inove/img/icons.gif') no-repeat scroll 0px -80px;
     min-height: 15px;
     min-width: 16px;
     display: inline-block;
+}
+
+.select {
+  background: transparent url('http://www.md2.com/portal/wp-content/themes/inove/img/icons.gif') no-repeat scroll 0px -80px;
+}
+
+#date_range_table .edit {
+  background: transparent url('http://www.md2.com/portal/wp-content/themes/inove/img/icons.gif') no-repeat scroll 0px -48px;
+  margin-left: 10px;
+}
+
+.selected_row .edit {
+  margin-left: 0px;
 }
 
 .selected_row {

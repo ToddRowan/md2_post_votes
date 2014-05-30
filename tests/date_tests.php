@@ -33,14 +33,28 @@ $dfpairs = array(
         <h2>Create date ranges</h2>
         <?php
             echo "<p>From $ds1 to $de1:</p>";
-            echo "new ID: " . md2_create_vote_date_range($ds1, $de1);
+            $newid1 = md2_create_vote_date_range($ds1, $de1);
+            echo "new ID: " . $newid1;
             
             echo "<p>From $ds2 to $de2:</p>";
-            echo "new ID: " . md2_create_vote_date_range($ds2, $de2);
+            $newid2 = md2_create_vote_date_range($ds2, $de2);
+            echo "new ID: " . $newid2;
+        ?>
+        <h2>Update date ranges</h2>
+        <?php
+            echo "<p>Updating $newid1:</p>";
+            $er = md2_update_vote_date_range($newid1, array("process_state"=>512));
+            echo "result: " . print_r($er,true);
+            
+            echo "<p>Updating $newid2:</p>";
+            $er = md2_update_vote_date_range($newid2, array("process_state"=>1024,"is_locked"=>'y'));
+            echo "result: " . print_r($er,true);
+            
+            
         ?>
         <h2>Test latest date retrieval</h2>
         <?php
-            echo "<p>Latest date: ($de1) = " . get_latest_end_date();
+            echo "<p>Latest date: ($de1) = " . md2_get_latest_end_date();
             echo "<p>Latest date plus one: ($de1) = " . get_latest_end_date_plus_one();
         ?>
         

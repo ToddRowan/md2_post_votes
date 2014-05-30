@@ -1,35 +1,50 @@
 var md2_data_blocks = {};
-jQuery(document).ready( function() {
+var $ = $ || jQuery;
 
-    jQuery( "#gr_accordion" ).accordion({collapsible: true, heightStyle: "content"}); 
-    jQuery( ".date" ).datepicker({dateFormat: "M d, yy"});
-    jQuery('.time').timepicker({'minTime': '7:00am', 'maxTime': '7:00pm'}); //http://jonthornton.github.io/jquery-timepicker/
+var MD2_STATE_NOT_USED=1*256;
+var MD2_STATE_ACTIVATED=2*256;
+var MD2_STATE_VOTE_MAIL_SENT=3*256;
+var MD2_STATE_VOTE_COMPLETED=4*256;
+var MD2_STATE_MEET_MAIL_SENT=5*256;
+var MD2_STATE_ARCHIVED=6*256;
+
+$(document).ready( function() {
+    $("#gr_accordion").accordion({collapsible: true, heightStyle: "content"}); 
+    $(".date").datepicker({dateFormat: "M d, yy"});
+    $('.time').timepicker({'minTime': '7:00am', 'maxTime': '7:00pm'}); //http://jonthornton.github.io/jquery-timepicker/
+    $("#md2_date_form").submit(function(){doDateRangeEdit();return false;});
     
-    jQuery('#add_new_date_range').click(
+    $('#add_new_date_range').click(
             function(evt)
             {
                 setupDateEdit(evt);
             });
             
-    jQuery('#date_range_table').on('click', 'span.edit', function(evt)
+    $('#date_range_table').on('click', 'div.edit', function(evt)
             {
                 setupDateEdit(evt);
             });
             
-    jQuery('#date_range_edit_reset').click(
+    $('#date_range_edit_reset').click(
             function(evt)
             {
                 resetDateEdit();
             });    
            
-    jQuery('#date_range_table').on('click', 'span.activate', function(evt)
+    $('#date_range_table').on('click', 'span.activate', function(evt)
             {
                 activatePeriod(evt);
             });
             
-    jQuery('#date_range_table').on('click', 'div.select', function(evt)
+    $('#date_range_table').on('click', 'div.select', function(evt)
             {
                 changeSelection(evt);
+            });
+            
+    $('#activate_button').click(
+            function(evt)
+            {
+                doDrActivate(evt);
             });
     
     populateAccordion();
@@ -37,7 +52,7 @@ jQuery(document).ready( function() {
 
 function setupDateEdit(evt)
 {
-    var $el = jQuery(evt.currentTarget);
+    var $el = $(evt.currentTarget);
     var id = $el.attr('id');
     if (id!=='add_new_date_range')
     {
@@ -50,11 +65,11 @@ function setupDateEdit(evt)
     
     populateDateEdit(id);
     
-    var $formBox = jQuery('#new_date_range_form');
+    var $formBox = $('#new_date_range_form');
     $formBox.show();
-    var $form = jQuery('#md2_date_form');
+    var $form = $('#md2_date_form');
     
-    var $input = jQuery('#edit_date_range');
+    var $input = $('#edit_date_range');
     if ($input.length==0)
     {
         $input = $form.append('<input type="hidden" id="edit_date_range" name="edit_date_range" value="' + id + '">');
@@ -64,39 +79,41 @@ function setupDateEdit(evt)
         $input.val(id);
     }    
     
-    jQuery('#date_range_edit_reset').show();
+    $('#date_range_edit_reset').show();
 }
 
 function populateDateEdit(id)
 {
-    jQuery("#md2_date_range_start").val(jQuery("#start_date-"+id).text());
-    jQuery("#md2_date_range_end").val(jQuery("#end_date-"+id).text());
-    jQuery("#date_range_submit").text((id==-1?"Add a new date range":"Edit this date range")); 
-    jQuery("#md2_date_form").submit(function(){doDateRangeEdit();return false;})
+    $("#md2_date_range_start").val($("#start_date-"+id).text());
+    $("#md2_date_range_end").val($("#end_date-"+id).text());
+    $("#date_range_submit").text((id==-1?"Add a new date range":"Edit this date range")); 
 }
 
 function resetDateEdit()
 {
-    var $input = jQuery('#edit_date_range').val(-1);
-    jQuery("#md2_date_range_start, #md2_date_range_end").val("");
-    jQuery("#date_range_submit").text("Add a new date range");
+    var $input = $('#edit_date_range').val(-1);
+    $("#md2_date_range_start, #md2_date_range_end").val("");
+    $("#date_range_submit").text("Add a new date range");
     hideDateEditForm();
 }
 
 function hideDateEditForm()
 {
-    jQuery('#date_range_edit_reset, #new_date_range_form').hide();
+    $('#date_range_edit_reset, #new_date_range_form').hide();
 }
 
 function activatePeriod(evt)
 {
-    jQuery('#vote_period_blade').prev('h3').first().click();
+    $(".voteopen, .meetopen").show();
+    $(".voteclosed, .meetclosed, .vote_not_activated").hide();
+    setActivateButton(true, "Activate");
+    $('#vote_period_blade').prev('h3').first().click();
 }
 
 function changeSelection(evt)
 {
-    jQuery('.selected_row').removeClass('selected_row');
-    jQuery(evt.currentTarget).closest('tr').addClass('selected_row');
+    $('.selected_row').removeClass('selected_row');
+    $(evt.currentTarget).closest('tr').addClass('selected_row');
     populateAccordion();
     // populate data in the other blades
 }
@@ -104,10 +121,10 @@ function changeSelection(evt)
 function populateAccordion()
 {
     // First, set the date on the accordion header.
-    var id = jQuery(".selected_row").first().attr('id').split("-")[1];
-    var start = jQuery('#start_date-'+id).text();
-    var end = jQuery('#end_date-'+id).text();
-    jQuery('.important_dates').text("(" + start + " - " + end + ")");
+    var id = $(".selected_row").first().attr('id').split("-")[1];
+    var start = $('#start_date-'+id).text();
+    var end = $('#end_date-'+id).text();
+    $('.important_dates').text("(" + start + " - " + end + ")");
     
     // Next, populate the accordion content items. 
     configureVoteDates(id);
@@ -115,59 +132,68 @@ function populateAccordion()
 
 function configureVoteDates(id)
 {
-    /*Dates can be edited - is locked == 'n' && is_voting_eligible == 'n' && vote_mail_sent == 'n'
-    Dates cannot be edited -- is locked == 'y' || is_voting_eligible == 'y' || vote_mail_sent == 'y'
-    Users can vote - voting is active -- is_voting_eligible == 'y'
-    Users cannot vote - voting is not active == is_voting_eligible == 'n'
-    Admin can make selections - is the same as above? -- is_voting_eligible == 'n' && meeting_mail_sent == 'n'
-    No one can change anything - is locked == 'y' */
     var data = populateDateObj(id);
     populateDataFields(data);
     
-    if (data.is_locked=="y") 
+    if (data.process_state>=MD2_STATE_MEET_MAIL_SENT/*MD2_STATE_ARCHIVED*/) 
     {
         // Everything is shut
-        jQuery(".voteopen, .meetopen").hide();
-        jQuery(".voteclosed, .meetclosed").show();
+        $(".voteopen, .meetopen, .vote_not_activated").hide();
+        $(".voteclosed, .meetclosed").show();
+        setActivateButton(false);
         return;
-    }    
+    }
     
-    if (votingDatesEditable(data))
+    if (data.process_state==MD2_STATE_NOT_USED)
     {
-        // Add the calendar items for the voting dates
-        jQuery(".voteopen").show();
-        jQuery(".voteclosed").hide();
+      $(".voteopen, .meetopen,.voteclosed, .meetclosed").hide();  
+      $('.vote_not_activated').show();
+      setActivateButton(false);
+      return;
     }
     else
     {
-        jQuery(".voteclosed").show();
-        jQuery(".voteopen").hide();
+      $('.vote_not_activated').hide();
     }
     
-    if (meetingInfoEditable(data))
+    if (data.process_state==MD2_STATE_ACTIVATED)
     {
-        // Add the calendar items for the voting dates
-        jQuery(".meetopen").show();
-        jQuery(".meetclosed").hide();
+      $(".voteopen, .meetopen").show();
+      $(".voteclosed, .meetclosed").hide();
+      setActivateButton(true, "Update");
+      return;
     }
-    else
+    
+    if (data.process_state==MD2_STATE_VOTE_MAIL_SENT || data.process_state==MD2_STATE_VOTE_COMPLETED)
     {
-        jQuery(".meetclosed").show();
-        jQuery(".meetopen").hide();
+      $(".voteclosed, .meetopen").show();
+      $(".voteopen, .meetclosed").hide();
+      setActivateButton(true, "Update");
+      return;
     }
+}
+
+function setActivateButton(vis, txt)
+{
+  if (txt)
+  {
+    $('#activate_button').val(txt);
+    $('#activate_state').val(txt.toLowerCase()); 
+  }
+  if (!vis)
+    $('#activate_button').hide();
+  else
+    $('#activate_button').show();
 }
 
 function votingDatesEditable(data)
 {
-    if (data.is_locked == 'n' && data.is_voting_eligible == 'n' && data.vote_mail_sent == 'n')
-        return true;
-    if( data.is_locked == 'y' || data.is_voting_eligible == 'y' || data.vote_mail_sent == 'y')
-        return false;
+    return (data.process_state < MD2_STATE_VOTE_MAIL_SENT);
 }
 
 function meetingInfoEditable(data)
 {
-    return true;
+    return (data.process_state < MD2_STATE_MEET_MAIL_SENT);
 }
 
 function populateDateObj(id)
@@ -178,7 +204,7 @@ function populateDateObj(id)
     }
     else
     {
-        var $blockSrc = jQuery("#data-block-"+id);
+        var $blockSrc = $("#data-block-"+id);
 
         var obj = {
             "id": id,
@@ -195,7 +221,8 @@ function populateDateObj(id)
             time_meet_end: $blockSrc.find(".time_meet_end").first().text(),
             phone_number: $blockSrc.find(".phone_number").first().text(),
             meeting_id: $blockSrc.find(".meeting_id").first().text(),
-            meeting_note: $blockSrc.find(".meeting_note").first().text()
+            meeting_note: $blockSrc.find(".meeting_note").first().text(),
+            process_state: parseInt($blockSrc.find(".process_state").first().text())
         };
         
         md2_data_blocks[id]= obj;
@@ -203,9 +230,22 @@ function populateDateObj(id)
     }
 }
 
+function updateDateObj(o)
+{
+  var id = o.id;
+  var tgt = populateDateObj(id);
+  
+  for (var key in o) {
+      if(o.hasOwnProperty(key) && key!='id')
+      {
+        tgt[key]=o[key];
+      }
+   }
+}
+
 function populateDataFields(data)
 {
-    var $blockTgt = jQuery("#vote_period_blade");
+    var $blockTgt = $("#vote_period_blade");
 
     $blockTgt.find(".vote_mail_sent").each(function(i,e){textOrVal(data.vote_mail_sent,e)});
     $blockTgt.find(".meeting_mail_sent").each(function(i,e){textOrVal(data.meeting_mail_sent,e)});
@@ -219,6 +259,8 @@ function populateDataFields(data)
     $blockTgt.find(".phone_number").each(function(i,e){textOrVal(data.phone_number,e)});
     $blockTgt.find(".meeting_id").each(function(i,e){textOrVal(data.meeting_id,e)});
     $blockTgt.find(".meeting_note").each(function(i,e){textOrVal(data.meeting_note,e)});
+    $blockTgt.find(".process_state").each(function(i,e){textOrVal(data.meeting_note,e)});
+    $blockTgt.find("#dr_id").each(function(i,e){textOrVal(data.id,e)});
 }
 
 function convertTime(t)
@@ -232,22 +274,22 @@ function convertTime(t)
 
 function textOrVal(txt,e)
 {
-    if (jQuery(e).is('input'))
-        jQuery(e).val(txt);
+    if ($(e).is('input'))
+        $(e).val(txt);
     else
-        jQuery(e).text(txt);
+        $(e).text(txt);
 }
 
-function doDateRangeEdit()
+function doDateRangeEdit(evt)
 {
     var data = {
             action: 'md2_edit_date_range',
-            id: jQuery('#edit_date_range').val(),                
-            new_start: jQuery('#md2_date_range_start').val(),
-            new_end: jQuery('#md2_date_range_end').val()
+            id: $('#edit_date_range').val(),                
+            new_start: $('#md2_date_range_start').val(),
+            new_end: $('#md2_date_range_end').val()
         };
                 
-    jQuery.post(ajaxurl,
+    $.post(ajaxurl,
         data, function(response) {
                         handleDateRangeEdit(response);
                 },"json");
@@ -257,15 +299,16 @@ function handleDateRangeEdit(s)
 {
     var id = s.id;
     
-    var nstart = jQuery('#md2_date_range_start').val();
-    var nend = jQuery('#md2_date_range_end').val();
+    var nstart = $('#md2_date_range_start').val();
+    var nend = $('#md2_date_range_end').val();
     
-    var $row = jQuery('#dr_row-'+id);
+    var $row = $('#dr_row-'+id);
     
     if ($row.length>0)
     {
-        jQuery('#start_date-'+id).text(nstart);
-        jQuery('#end_date-'+id).text(nend);        
+        $('#start_date-'+id).text(nstart);
+        $('#end_date-'+id).text(nend); 
+        insertActivationSpan(s,$row);
     }
     else
     {
@@ -273,23 +316,56 @@ function handleDateRangeEdit(s)
         insertNewDateRange(s,nstart,nend);
     }
     
+    $('.selected_row').removeClass('selected_row');
+    $("#dr_row-" + id).addClass('selected_row');
+    
     hideDateEditForm();
     populateAccordion();
 }
 
+function insertActivationSpan(data,$row)
+{
+  if (!data.activatable)
+  {
+    // not activatable, hide any span that may be visible
+    $row.find(".activate_cell span.activate").hide();
+  }
+  else
+  {
+    // if activatable and the span exists, show it
+    if ($row.find(".activate_cell span.activate").length>0)
+    {
+        $row.find(".activate_cell span.activate").show();
+    }
+    else
+    {
+      // otherwise we have to add it. 
+      $row.find(".activate_cell").first().html(getActivationSpan(data.id));
+    }
+  }
+}
+
+function getActivationSpan(id)
+{
+  return "<span class=\"activate\" id=\"activate-" + id + "\">Activate</span>";
+}
+
 function insertNewDateRange(newobj, newstart, newend)
 {
-    var $table = jQuery('#date_range_table');
+    var $table = $('#date_range_table');
     $table.find('tr').first().after(
-            "<tr id=\"dr_row-" + newobj.id + "\"><td class=\"center\"><div class=\"select\" id=\"select-" + newobj.id + "\"></div></td>"+ // Selected
+            "<tr id=\"dr_row-" + newobj.id + "\"><td class=\"center\"><div class=\"select\" id=\"select-" + newobj.id + "\"></div>" +
+            "<div class=\"edit\" id=\"edit-" + newobj.id + "\"></div></td>"+ // Selected/edit
             "<td><span id=\"start_date-" + newobj.id + "\">"+newstart+"</span></td>" + //start
             "<td><span id=\"end_date-" + newobj.id + "\">"+newend+"</span></td>" + //end
-            "<td>Not activated</td>" + //status
+            "<td>" + getStateText(newobj.process_state) + "</td>" + //status
             "<td>" + newobj.post_count +"</td>" + //post_count
-            "<td>" + (newobj.activatable?"<span class=\"activate\" id=\"activate-" + newobj.id + "\">Activate</span>":"") + "</td>" + //activate
-            "<td><span class=\"edit\" id=\"edit-" + newobj.id + "\">Edit</span></td>" + // Edit dates
+            "<td class=\"activate_cell\">" + (newobj.activatable?getActivationSpan(newobj.id):'') + "</td>" + //activate
             insertDataColumn(newobj) + "</tr>"
             );
+    
+    // if this row is new, select it
+    
 }
 
 function insertDataColumn(obj)
@@ -302,5 +378,91 @@ function insertDataColumn(obj)
             '<span class="date_meet_email_sent"></span><span class="date_post_selection_ended"></span>'+
             '<span class="date_of_meet"></span><span class="time_meet_start"></span>'+
             '<span class="time_meet_end"></span><span class="phone_number"></span>'+
-            '<span class="meeting_id"></span><span class="meeting_note"></span></div><!-- end data block --></td>';
+            '<span class="meeting_id"></span><span class="meeting_note"></span>'+
+            '<span class="process_state">' + obj.process_state + '</span></div><!-- end data block --></td>';
+}
+
+function getStateText($state)
+{
+    var $txt = "";
+    switch($state)
+    {
+        case MD2_STATE_NOT_USED:
+            $txt = "Unused";
+            break;
+        case MD2_STATE_ACTIVATED:
+            $txt = "Active, not started";
+            break;
+        case MD2_STATE_VOTE_MAIL_SENT:
+            $txt = "Voting active";
+            break;
+        case MD2_STATE_VOTE_COMPLETED:
+            $txt = "Voting completed";
+            break;
+        case MD2_STATE_MEET_MAIL_SENT:
+            $txt = "Meeting invite sent";
+            break;
+        case MD2_STATE_ARCHIVED:
+            $txt = "Archived";           
+    }    
+    return $txt;
+}
+
+function doDrActivate(evt)
+{
+  var $activateSrc = $('#vote_period_blade');
+  var optionalFields = ['date_meet_email_sent', "date_of_meet","time_meet_start","time_meet_end",
+    "phone_number","meeting_id","meeting_note","act"];
+  
+  var data = {
+    action: 'md2_activate_date_range',
+    id: $activateSrc.find('#dr_id').first().val(),
+    date_vote_email_sent: $activateSrc.find('input[name="date_vote_email_sent"]').first().val(),
+    date_voting_ended: $activateSrc.find('input[name="date_voting_ended"]').first().val(),
+    act: $activateSrc.find('input[name="act"]').first().val()
+  };
+    
+  for (p in optionalFields)
+  {
+    var $prop = $activateSrc.find('input[name="' + optionalFields[p] + '"]').first();
+    if ($prop.length == 1)
+    {
+      data[optionalFields[p]]=$prop.val();
+    }    
+  }
+  
+  if (data.date_vote_email_sent == "" || data.date_voting_ended == "")
+  {
+    // problems
+    alert('Please select start and end dates for the voting period.');
+    return;
+  }
+  
+  $.post(ajaxurl,
+        data, function(response) {
+                        handleDateRangeActivate(response);
+                },"json");
+}
+
+function handleDateRangeActivate(response)
+{
+  // update the returned fields and repopulate the accordion.
+  
+  // Change the button and update stuff text.
+  if (response.error == 1)
+  {
+    //oops
+    alert(response.msg);
+  }
+  else
+  {
+    document.location.reload(true);
+    //updateDateObj(response.obj);
+    //configureVoteDates(response.obj.id)
+    // update the data store with the items from the request (or forms)
+    
+    // update the form blade
+    
+    // update the table
+  }
 }

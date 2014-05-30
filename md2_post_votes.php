@@ -15,6 +15,7 @@ Version: 0.1
 require ("md2_post_votes_model.php");
 require ("md2_post_votes_admin.php");
 require ("md2_post_votes_ajax.php");
+require ("md2_post_votes_cron.php");
 
 
 function did_user_vote_for_post($post_id = -1, $user_id=-1, $vote_period=-1)
