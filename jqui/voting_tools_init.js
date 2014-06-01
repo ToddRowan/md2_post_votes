@@ -267,8 +267,9 @@ function convertTime(t)
 {
     if (t=="")return "";
     var t_arr = t.split(":");
-    var pm = parseInt(t_arr[0])>11?"pm":"am";
-    var h = parseInt(t_arr[0])>12?parseInt(t_arr[0])-12:t_arr[0];
+    var hrs = parseInt(t_arr[0]);
+    var pm = hrs>11?"pm":"am";
+    var h = hrs>12?hrs-12:(hrs===0?"12":hrs);
     return h+":"+t_arr[1]+pm;
 }
 

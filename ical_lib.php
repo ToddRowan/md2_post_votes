@@ -1,5 +1,4 @@
 <?php
-require("../../../wp-load.php");
 // Omitted items: URL;VALUE=URI: /*escapeString($uri)*/ 
 // Variables used in this script:
 //   $summary     - text title of the event
@@ -31,13 +30,6 @@ require("../../../wp-load.php");
 //
 //      https://www.ietf.org/rfc/rfc5545.txt
 
-$dr_id = $_GET['dr_id'];
-$dr = md2_get_vote_date_range_by_id($dr_id);
-
-// 1. Set the correct headers for this file
-header('Content-type: text/calendar; charset=utf-8');
-header('Content-Disposition: attachment; filename=' . "bs.ics");
-
 // 2. Define helper functions
 
 // Converts a unix timestamp to an ics-friendly format
@@ -47,12 +39,14 @@ header('Content-Disposition: attachment; filename=' . "bs.ics");
 //
 // Also note that we are using "H" instead of "g" because iCalendar's Time format
 // requires 24-hour time (see RFC 5545 section 3.3.12 for info).
-function dateToCal($timestamp) {
+function dateToCal($timestamp) 
+{
   return date('Ymd\THis\Z', $timestamp);
 }
 
 // Escapes a string of characters
-function escapeString($string) {
+function escapeString($string) 
+{
   return preg_replace('/([\,;])/','\\\$1', $string);
 }
 
@@ -64,35 +58,32 @@ function time2seconds($time='00:00:00')
     return ($hours * 3600 ) + ($mins * 60 ) + $secs;
 }
 
-$dtz = md2_get_default_tz();
-
-// 3. Echo out the ics file's contents
-?>
-BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//MD2//WebSite v1.0//EN
-CALSCALE:GREGORIAN
-BEGIN:VEVENT
-DTSTART:<?php 
-$tmp_date = date_create($dr->date_of_meet,$dtz);
-$meet_date_start = clone $tmp_date;
-$meet_date_start->modify("+" . time2seconds($dr->time_meet_start) ." seconds");
-echo dateToCal(date_format($meet_date_start, 'U')) . "\n"?>
-DTEND:<?php
-$meet_date_end = clone $tmp_date;
-$meet_date_end->modify("+" . time2seconds($dr->time_meet_end) ." seconds");
-echo dateToCal(date_format($meet_date_end, 'U')) . "\n" ?>
-SUMMARY:<?php
-echo "Grand Rounds Call " . date_format($meet_date_start, "F, Y") . "\n";
-?>
-UID:<?php echo uniqid() . "\n"?>
-DTSTAMP:<?php echo dateToCal(time()) . "\n" ?>
-LOCATION:Telephone conference
-DESCRIPTION:<?php
-echo "Join us for the quarterly Grand Rounds Call.\\n";
-echo "Dial {$dr->phone_number} and use the code {$dr->meeting_id} to connect.\\n";
-echo str_replace("\r\n", "\\n", $dr->meeting_note) . "\\n" . "\n";
-?>
-ORGANIZER;CN="Laurie Krisman":mailto:krisman@md2.com
-END:VEVENT
-END:VCALENDAR
+// 3. Assemble the ics file's contents
+function md2_get_ics_data($dr)
+{
+  $dtz = md2_get_default_tz();
+  $ics="BEGIN:VCALENDAR\n";
+  $ics.="VERSION:2.0\n";
+  $ics.="PRODID:-//MD2//WebSite v1.0//EN\n";
+  $ics.="CALSCALE:GREGORIAN\n";
+  $ics.="BEGIN:VEVENT\n";
+  $tmp_date = date_create($dr->date_of_meet,$dtz);
+  $meet_date_start = clone $tmp_date;
+  $meet_date_start->modify("+" . time2seconds($dr->time_meet_start) ." seconds");
+  $ics.="DTSTART:".dateToCal(date_format($meet_date_start, 'U')) . "\n";
+  $meet_date_end = clone $tmp_date;
+  $meet_date_end->modify("+" . time2seconds($dr->time_meet_end) ." seconds");
+  $ics.="DTEND:".dateToCal(date_format($meet_date_end, 'U')) . "\n";
+  $ics.="SUMMARY:Grand Rounds Call " . date_format($meet_date_start, "F, Y") . "\n";
+  $ics.="UID:". uniqid() . "\n";
+  $ics.="DTSTAMP:".dateToCal(time()) . "\n";
+  $ics.="LOCATION:Telephone conference\n";
+  $ics.="DESCRIPTION:Join us for the quarterly Grand Rounds Call.\\n";
+  $ics.="Dial {$dr->phone_number} and use the code {$dr->meeting_id} to connect.\\n";
+  $ics.= str_replace("\r\n", "\\n", $dr->meeting_note) . "\\n" . "\n";
+  $ics.='ORGANIZER;CN="Laurie Krisman":mailto:krisman@md2.com'."\n";
+  $ics.="END:VEVENT\n";
+  $ics.="END:VCALENDAR\n";
+  
+  return $ics;
+}

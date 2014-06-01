@@ -83,7 +83,8 @@ function md2_set_vote($post_id, $user_id, $date_range)
 {
     global $wpdb;
     if (!did_user_vote_for_post($post_id, $user_id, $date_range))
-        $wpdb->insert(VOTESDBTABLE, array("post_id"=>$post_id, "user_id"=>$user_id, "vote_daterange_id"=>$date_range)
+        $wpdb->insert(VOTESDBTABLE
+            ,array("post_id"=>$post_id, "user_id"=>$user_id, "vote_daterange_id"=>$date_range)
             ,array("%d","%d","%d"));
 }
 
@@ -104,20 +105,48 @@ function md2_get_votes_for_post($post_id, $date_range_id)
 function md2_get_posts_ranked_by_votes($date_range_id)
 {
     global $wpdb;
-    $sql = "SELECT `post_id`, COUNT(`user_id`) as votecount FROM " . VOTESDBTABLE . " WHERE `vote_daterange_id` = $date_range_id GROUP BY `post_id` ORDER BY votecount DESC";
+    $sql = "SELECT `post_id`, COUNT(`user_id`) as votecount FROM " . VOTESDBTABLE ;
+    $sql.= " WHERE `vote_daterange_id` = $date_range_id GROUP BY `post_id` ORDER BY votecount DESC";
     return $wpdb->query($sql);
+}
+
+function md2_get_post_vote_counts($date_range_id)
+{
+  global $wpdb;
+
+  $sql="SELECT `p`.`ID`, `p`.`post_title`, COUNT(`v`.`post_id`) AS `votecount` FROM ";
+  $sql.= $wpdb->posts . " p INNER JOIN ". VOTESDBTABLE . " `v` ON `p`.`ID` = `v`.`post_id` ";
+  $sql.= " WHERE `v`.`vote_daterange_id` = $date_range_id GROUP BY `v`.`post_id` ";
+  $sql.= " ORDER BY `votecount` DESC";
+  
+  return $wpdb->get_results($sql);
+}
+
+function md2_get_user_vote_counts($date_range_id)
+{
+  global $wpdb;
+  $sql = "SELECT `u`.`ID`, `u`.`user_login`, COUNT(`v`.`user_id`) AS `votecount` ";
+  $sql.= "FROM " . $wpdb->users . " `u` LEFT OUTER JOIN ". VOTESDBTABLE ." `v` ";
+  $sql.= "ON `u`.`ID` = `v`.`user_id` WHERE `v`.`vote_daterange_id` = $date_range_id ";
+  $sql.= "OR `v`.`user_id` IS NULL ";
+  $sql.= "GROUP BY `v`.`user_id` ORDER BY `votecount` DESC";
+  
+  return $wpdb->get_results($sql);
 }
 
 function md2_get_votes_for_user($user_id, $date_range_id)
 {
     global $wpdb;
-    $sql="SELECT `post_id` FROM " . VOTESDBTABLE . " WHERE `user_id` = $user_id AND `vote_daterange_id` = $date_range_id";
+    $sql = "SELECT `post_id` FROM " . VOTESDBTABLE . " WHERE `user_id` = $user_id";
+    $sql.= " AND `vote_daterange_id` = $date_range_id";
     return $wpdb->get_col($sql);   
 }
+
 function md2_delete_vote($post_id, $user_id, $date_range_id)
 {
     global $wpdb;
-    $sql = "DELETE FROM " . VOTESDBTABLE . " WHERE `user_id` = $user_id AND `post_id` = $post_id AND `vote_daterange_id` = $date_range_id";
+    $sql = "DELETE FROM " . VOTESDBTABLE . " WHERE `user_id` = $user_id AND ";
+    $sql.= "`post_id` = $post_id AND `vote_daterange_id` = $date_range_id";
     $wpdb->query($sql);
 }
 

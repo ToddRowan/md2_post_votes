@@ -42,6 +42,7 @@ function md2_do_vote_cron($id)
       // Collect the set of eligible posts
       md2_populate_eligible_posts_by_date_range($id);
       // Send the email that voting is open.
+      md2_send_vote_start_mail($dr);
       // set voting eligible to y, advance the process state
       $upd_fields = array("vote_mail_sent"=>'y', "is_voting_eligible"=>'y', "process_state"=>MD2_STATE_VOTE_MAIL_SENT);
       break;
@@ -58,6 +59,7 @@ function md2_do_vote_cron($id)
     case MD2_STATE_VOTE_COMPLETED:  //Activated, voting over, waiting to send meeting email
       // generate the ics file      
       // Send email about meeting date.
+      md2_send_meeting_mail($dr);
       //set cron job to archive the results at meeting time. 
       $tmp_date = date_create($dr->date_of_meet,$dtz);
       $meet_time_arr = explode(":",$dr->time_meet_start);

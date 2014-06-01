@@ -1,0 +1,7 @@
+<p><a href="http://www.md2.com/portal/?page_id=2575">Click here</a> to vote on topics for the next MD² Grand Rounds call.</p>
+
+<p>Cast your votes by __VOTE_END__ and we'll have them ready for the call on __MEET_DATE__.</p> 
+
+<hr />
+
+<p>Do not respond to this email, it has been compiled and sent by the server.</p

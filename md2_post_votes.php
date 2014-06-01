@@ -16,6 +16,8 @@ require ("md2_post_votes_model.php");
 require ("md2_post_votes_admin.php");
 require ("md2_post_votes_ajax.php");
 require ("md2_post_votes_cron.php");
+require ("ical_lib.php");
+require ("md2_post_votes_mailer.php");
 
 
 function did_user_vote_for_post($post_id = -1, $user_id=-1, $vote_period=-1)
@@ -61,7 +63,8 @@ function md2_orderby_modification($orderby, $wpquery)
 {
     // Necessary b/c we're on WP 3.3.2 and not 3.5
     global $wpdb;
-    if ($wpquery->query_vars['orderby'] === 'post__in' 
+    if (isset($wpquery->query_vars['orderby']) 
+            && $wpquery->query_vars['orderby'] === 'post__in' 
             && is_array($wpquery->query_vars['post__in'])
             && count($wpquery->query_vars['post__in'])>0)
     {
