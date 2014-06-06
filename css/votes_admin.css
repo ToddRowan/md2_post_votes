@@ -20,12 +20,13 @@
     border: 3px solid black;    
 }
 
-#date_range_table, #date_range_table th, #date_range_table td {
+#date_range_table, #date_range_table th, #date_range_table td, .vote_results,
+.vote_results th, .vote_results td {
     border: 1px solid black;
     border-collapse: collapse;
 }
 
-#date_range_table th, #date_range_table td {
+#date_range_table th, #date_range_table td, .vote_results th, .vote_results td {
     padding: 4px;
 }
 
@@ -95,4 +96,8 @@ span.meeting_note {
 
 .date {
     width: 95px;
+}
+
+.vote_result_group {
+  display: none;
 }

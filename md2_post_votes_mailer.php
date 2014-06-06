@@ -6,11 +6,11 @@ define('MD2_MAIL_DATE_FORMAT', "l, F jS");
 
 function md2_send_cron_related_mails($subject, $mailtext, $attachments = array())
 {
-  //$drs = md2_get_active_doctor_list();
-  $drs = array();
+  $drs = md2_get_active_doctor_list();  
   $drs[]="md2@kimandtodd.com";
   foreach ($drs as $doc)
   {
+    md2_cron_log("Cron mailing $doc\n");
     send_digest_mail($doc, $subject, $mailtext, $attachments);
   }
 }

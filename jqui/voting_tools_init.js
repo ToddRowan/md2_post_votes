@@ -128,6 +128,7 @@ function populateAccordion()
     
     // Next, populate the accordion content items. 
     configureVoteDates(id);
+    activateVoteResults(id);
 }
 
 function configureVoteDates(id)
@@ -173,6 +174,11 @@ function configureVoteDates(id)
     }
 }
 
+function activateVoteResults(id)
+{
+  $('.vote_result_group').hide();
+  $('#date_range_votes-'+id).show();
+}
 function setActivateButton(vis, txt)
 {
   if (txt)

@@ -133,31 +133,116 @@ function md2_vote_period_config_blade(&$res)
 
 function md2_vote_results_blade(&$res)
 {
-    ?>
-    <p>This period has not been activated.</p>    
-    <p>Voting is ACTIVE/INACTIVE.</p>
-    <p>Of the NUM eligible posts, NUM have received votes. NUM doctors have voted during this period.</p>
-    <p>OR</p>
-    <p>Of the NUM eligible posts, NUM received votes. NUM doctors voted during this period.</p>
-    <p>Here are the posts that HAVE received votes</p>
+  foreach ($res as $date_range)
+  {
+    echo "<div class=\"vote_result_group\" id=\"date_range_votes-{$date_range->id}\">";
+    switch($date_range->process_state)
+    {
+      case MD2_STATE_NOT_USED: // Created but not used.
+      case MD2_STATE_ACTIVATED: //Activated, waiting to send vote start email. 
+        echo "<p>Voting for this period has not yet begun.";
+        break;
+      
+      case MD2_STATE_VOTE_COMPLETED:  //Activated, voting over, waiting to send meeting email
+      case MD2_STATE_MEET_MAIL_SENT: //Activated, voting over, meeting email and invite sent
+      case MD2_STATE_ARCHIVED:  //Archived, meeting date passed.
+      case MD2_STATE_VOTE_MAIL_SENT:  //Activated, vote email sent, voting open.
+        echo md2_output_vote_status_msg($date_range);
+        
+        echo "<h3>Votes by post</h3>";
+        md2_output_votes_by_post($date_range->id);
+        echo "<p>Note that eligible posts without votes are not included in the above table.</p>";
+        
+        echo "<h3>Votes by user</h3>";
+        md2_output_votes_by_doctor($date_range->id);      
+    }
+  ?>
     <?php
-    // Doc names?
-    // Select posts for inclusion? Where do we do this?
+    echo "</div> <!-- date_range_votes-{$date_range->id} -->";
+  }
+}
+
+function md2_output_votes_by_doctor($id)
+{
+  $votes = md2_get_user_vote_counts($id);
+  
+  if (count($votes)==0)
+  {
+    echo "<p>No results at this time.</p>";
+  }
+ else 
+ {
+    $novotes = md2_get_users_without_votes($id);
+    echo "<table class=\"vote_results\"><tr><th>Doctor</th><th>Total votes</th></tr>";
+
+    foreach ($votes as $vote)
+    {
+      echo "<tr><td>".$vote->user_login."</td><td>".$vote->votecount."</td></tr>";
+    }
+    foreach ($novotes as $novote)
+    {
+      echo "<tr><td>".$novote->user_login."</td><td>0</td></tr>";
+    }
+
+    echo "</table>";
+ }
+}
+
+function md2_output_votes_by_post($id)
+{
+  $votes = md2_get_post_vote_counts($id);
+  
+  if (count($votes)==0)
+  {
+    echo "<p>No results at this time.</p>";
+  }
+ else 
+ {
+    echo "<table class=\"vote_results\"><tr><th>Post</th><th>Total votes</th></tr>";
+
+    foreach ($votes as $vote)
+    {
+      echo "<tr><td>".$vote->post_title."</td><td>".$vote->votecount."</td></tr>";
+    }
+
+    echo "</table>";
+ }
+}
+
+function md2_output_vote_status_msg($dr)
+{
+  $msg = "";
+  switch($dr->process_state)
+  {
+    case MD2_STATE_VOTE_COMPLETED:  //Activated, voting over, waiting to send meeting email
+    case MD2_STATE_MEET_MAIL_SENT: //Activated, voting over, meeting email and invite sent
+    case MD2_STATE_ARCHIVED:  //Archived, meeting date passed.
+      $msg = "<p>Voting is complete.</p>";
+      break;
+    case MD2_STATE_VOTE_MAIL_SENT:  //Activated, vote email sent, voting open.
+      $d = date_create("now", md2_get_default_tz());
+      $msg = "<p>Voting is active. Vote counts are current as of " . $d->format("l, F jS") . " at ". $d->format("g:i a") . " pacific time.</p>";
+  }
+  
+  return $msg;
 }
 
 function md2_add_grand_rounds_scripts()
 {
-    //wp_register_script('md2jq', 'http://www.md2.com/portal/wp-includes/js/jquery/jquery.js?ver=1.7.1');
-    wp_register_style('jqui-style', plugins_url('jqui/css/flick/jquery-ui-1.10.4.custom.min.css', __FILE__));
-    wp_register_style('jq_timepicker', plugins_url('jqui/css/jquery.timepicker.css', __FILE__));
-    wp_register_style('md2-votes-admin-style', plugins_url('css/votes_admin.css', __FILE__), array('jqui-style','jq_timepicker'));
-    wp_register_script('jqui', plugins_url('jqui/jquery-ui-1.10.4.custom.min.js', __FILE__), array('jquery'));
-    wp_register_script('jq_time_picker', plugins_url('jqui/jquery.timepicker.min.js', __FILE__), array('jquery'));
-    wp_register_script('md2_vote_tools_init', plugins_url('jqui/voting_tools_init.js', __FILE__), array('jqui','jq_time_picker'));
+    if (isset($_GET['page']) && $_GET['page']==='vote_options')
+    {
 
-    wp_enqueue_style('md2-votes-admin-style');
-    wp_enqueue_script('jq_time_picker');
-    wp_enqueue_script('md2_vote_tools_init');
+      wp_register_style('jqui-style', plugins_url('jqui/css/flick/jquery-ui-1.10.4.custom.min.css', __FILE__));
+      wp_register_style('jq_timepicker', plugins_url('jqui/css/jquery.timepicker.css', __FILE__));
+      wp_register_style('md2-votes-admin-style', plugins_url('css/votes_admin.css', __FILE__), array('jqui-style','jq_timepicker'));
+      wp_register_script('jqui', plugins_url('jqui/jquery-ui-1.10.4.custom.min.js', __FILE__), array('jquery'));
+      wp_register_script('jq_time_picker', plugins_url('jqui/jquery.timepicker.min.js', __FILE__), array('jquery'));
+      wp_register_script('md2_vote_tools_init', plugins_url('jqui/voting_tools_init.js', __FILE__), array('jqui','jq_time_picker'));
+
+      wp_enqueue_style('md2-votes-admin-style');
+      wp_enqueue_script('jq_time_picker');
+      wp_enqueue_script('md2_vote_tools_init');
+    }
 }
 
 function md2_format_view_date($d)

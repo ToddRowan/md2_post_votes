@@ -218,3 +218,13 @@ function is_date_earlier($d1, $d2)
     if ($d1['year']==$d2['year'] && $d1['month']==$d2['month'] && $d1['day'] >= $d2['day']) return false;
     return true;
 }
+
+function md2_is_voting_open()
+{
+  global $wpdb;
+  
+  $sql = "SELECT COUNT(`is_voting_eligible`) as tot FROM " . TIMEFRAMEDBTABLE;
+  $sql.= " WHERE `is_voting_eligible`='y'";
+  
+  return ($wpdb->get_var($sql) > 0);
+}

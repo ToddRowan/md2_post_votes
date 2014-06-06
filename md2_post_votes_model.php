@@ -83,9 +83,11 @@ function md2_set_vote($post_id, $user_id, $date_range)
 {
     global $wpdb;
     if (!did_user_vote_for_post($post_id, $user_id, $date_range))
+    {
         $wpdb->insert(VOTESDBTABLE
             ,array("post_id"=>$post_id, "user_id"=>$user_id, "vote_daterange_id"=>$date_range)
             ,array("%d","%d","%d"));
+    }
 }
 
 function md2_get_vote($post_id, $user_id, $date_range_id)
@@ -127,10 +129,28 @@ function md2_get_user_vote_counts($date_range_id)
   global $wpdb;
   $sql = "SELECT `u`.`ID`, `u`.`user_login`, COUNT(`v`.`user_id`) AS `votecount` ";
   $sql.= "FROM " . $wpdb->users . " `u` LEFT OUTER JOIN ". VOTESDBTABLE ." `v` ";
-  $sql.= "ON `u`.`ID` = `v`.`user_id` WHERE `v`.`vote_daterange_id` = $date_range_id ";
-  $sql.= "OR `v`.`user_id` IS NULL ";
-  $sql.= "GROUP BY `v`.`user_id` ORDER BY `votecount` DESC";
+  $sql.= "ON `u`.`ID` = `v`.`user_id` ";
+  $sql.= "WHERE `v`.`vote_daterange_id` = $date_range_id ";
+  $sql.= "GROUP BY `v`.`user_id` ORDER BY `votecount` DESC, `u`.`user_login` ASC";
   
+  return $wpdb->get_results($sql);
+}
+
+function md2_get_users_without_votes($date_range_id, $excludeids = array(1,2,9,12))
+{
+  global $wpdb;
+  
+  $sql = "SELECT `u`.`user_login` ";
+  $sql.= "FROM {$wpdb->users} `u` ";
+  $sql.= "LEFT JOIN (SELECT * FROM ". VOTESDBTABLE ." WHERE ". VOTESDBTABLE .".vote_daterange_id = ";
+  $sql.= $date_range_id . ") v ON `v`.`user_id` = `u`.`ID` ";
+  $sql.= "LEFT JOIN wp_md2_usermeta m ";
+  $sql.= "ON u.ID=m.user_id ";
+  $sql.= "WHERE m.meta_key='wp_md2_type' AND m.meta_value='9' ";
+  $sql.= "AND v.user_id IS NULL ";
+  $sql.= "AND NOT u.ID IN(". implode(",", $excludeids). ") " ;
+  $sql.= "ORDER BY `u`.`user_login`";
+    
   return $wpdb->get_results($sql);
 }
 
@@ -169,4 +189,16 @@ function md2_delete_votes_by_post($post_id)
     global $wpdb;
     $sql = "DELETE FROM " . VOTESDBTABLE . " WHERE `post_id` = $post_id";
     $wpdb->query($sql);
+}
+
+function md2_set_eligible_posts($date_range_id)
+{
+  global $wpdb;
+  $sql = "SELECT DISTINCT `post_id` FROM " . VOTESDBTABLE . " WHERE `vote_daterange_id` = " . $date_range_id . " ORDER BY `post_id`";
+  $ids =  $wpdb->get_col($sql);
+  
+  foreach ($ids as $id)
+  {
+    md2_set_eligible_post_selection_status($id, $date_range_id);
+  }
 }

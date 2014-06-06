@@ -94,6 +94,7 @@ $tf1 = 3;
         </table>
         
         <h3>Ranking users by votes</h3>
+        <p>With admin</p>
         <table>
           <tr><th>User</th><th>Votes</th></tr>
         <?php
@@ -108,6 +109,28 @@ $tf1 = 3;
           }
         ?>
         </table>
+        
+        <p>Without users</p>
+        <table>
+          <tr><th>User</th><th>Votes</th></tr>
+        <?php
+          $votes = md2_get_user_vote_counts($tf1);
+          if (count($votes)==0)
+          {
+            echo "<p>No results</p>";
+          }
+          foreach ($votes as $vote)
+          {
+            echo "<tr><td>".$vote->user_login."</td><td>".$vote->votecount."</td></tr>";
+          }
+          $novoters = md2_get_users_without_votes($tf1);
+          foreach ($votes as $vote)
+          {
+            echo "<tr><td>".$vote->user_login."</td><td>0</td></tr>";
+          }
+        ?>
+        </table>
+        
         <h3>Deleting votes for posts</h3>
         <?php
         /*
