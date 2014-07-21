@@ -3,8 +3,9 @@
 // Cron job files
 
 define("MD2_CRON_TZ", "America/Los_Angeles");
+define("MD2_VOTE_RELATED_CRON", 'md2_vote_related_cron');
 // The cron-able action must be outside of the function that crons it! Duh.
-add_action('md2_vote_related_cron_'.$id,'md2_do_vote_cron',10,1);
+add_action(MD2_VOTE_RELATED_CRON,'md2_do_vote_cron',10,1);
 
 function md2_get_default_tz()
 {
@@ -18,7 +19,7 @@ function md2_add_single_cron_datetime($id, $dt)
 
 function md2_add_single_cron($id, $ts)
 {
-  wp_schedule_single_event( $ts, "md2_vote_related_cron_".$id, array($id));
+  wp_schedule_single_event( $ts, MD2_VOTE_RELATED_CRON, array($id));
 }
 
 function md2_do_vote_cron($id)

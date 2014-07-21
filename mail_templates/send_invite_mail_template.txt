@@ -1,6 +1,4 @@
-<p><a href="http://www.md2.com/portal/?page_id=2609">Click here</a> to view the agenda and dialing information for the next Grand Rounds on __MEET_DATE__ at __MEET_TIME__</p>
-
-<p>Attached to this email is a meeting invite you can open in Outlook to add the date to your calendar.</p>
+<p><a href="http://www.md2.com/portal/?page_id=2609&dr=__DR_ID__">Click here</a> to view the agenda and dialing information for the next Grand Rounds on __MEET_DATE__ at __MEET_TIME__</p>
 
 <hr />
 

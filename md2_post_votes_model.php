@@ -1,13 +1,6 @@
 <?php
 
 /* DB tables 
-date ranges (what about a title or description?)
-CREATE TABLE `wp_md2_vote_dateranges` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
-  PRIMARY KEY (`id`)
-)
   
  CREATE TABLE `wp_md2_votes` (
   `user_id` bigint(20) unsigned NOT NULL,

@@ -1,5 +1,13 @@
 <?php
 
+/*date ranges (what about a title or description?)
+CREATE TABLE `wp_md2_vote_dateranges` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  PRIMARY KEY (`id`)
+) */
+
 define("TIMEFRAMEDBTABLE", $wpdb->prefix . ($wpdb->prefix==='wp_md2_'?'':'md2_') . "vote_dateranges");
 define("MD2_STATE_NOT_USED", 1*256); // Created but not used.
 define("MD2_STATE_ACTIVATED", 2*256); //Activated, waiting to send vote start email. 
@@ -144,6 +152,14 @@ function md2_get_youngest_archived_date_range()
   $sql = "SELECT * FROM " . TIMEFRAMEDBTABLE . " WHERE `process_state` = " . MD2_STATE_ARCHIVED . " ORDER BY `end_date` DESC LIMIT 0,1";
   return $wpdb->get_row($sql);
 }
+
+function md2_get_all_archived_date_range_ids()
+{
+  global $wpdb;
+  $sql = "SELECT ID FROM " . TIMEFRAMEDBTABLE . " WHERE `process_state` = " . MD2_STATE_ARCHIVED . " ORDER BY `end_date` ASC";
+  return $wpdb->get_col($sql);
+}
+
 function md2_get_latest_start_date()
 {
     global $wpdb;

@@ -33,10 +33,10 @@ function md2_send_meeting_mail($dr)
   // Test the inclusion of attachments
   // Modify the md2_mailer func to accept them
   $path = trailingslashit(md2_get_plugin_pathdir()).trailingslashit(MD2_MAIL_TEMPLATE_SUBFOLDER).MD2_SEND_INVITE_MAIL_TEMPLATE;
-  $tokens = array("__MEET_DATE__", "__MEET_TIME__");
+  $tokens = array("__DR_ID__", "__MEET_DATE__", "__MEET_TIME__");
   $date_of_meet = date_create($dr->date_of_meet, md2_get_default_tz());
   $time_of_meet = formatMySqlTime($dr->time_meet_start);
-  $vals = array($date_of_meet->format(MD2_MAIL_DATE_FORMAT), $time_of_meet);
+  $vals = array($dr-id, $date_of_meet->format(MD2_MAIL_DATE_FORMAT), $time_of_meet);
   $msg = do_replace($path, $vals, $tokens); 
   //$icspath = md2_get_ics_file($dr);
   md2_send_cron_related_mails("Grand Rounds Agenda: " . $date_of_meet->format('F, Y'), $msg);//, array($icspath));
