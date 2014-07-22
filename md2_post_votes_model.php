@@ -25,6 +25,7 @@ require ("models/md2_vote_date_range_model.php");
 require ("models/md2_vote_comments_model.php");
 require ("models/md2_vote_suggestions_model.php");
 require ("models/md2_eligible_posts_model.php");
+require ("models/md2_vote_for_date_range_model.php");
 
 function md2_get_posts_by_post_date_range($date_range_id)
 {
@@ -133,7 +134,7 @@ function md2_get_users_without_votes($date_range_id, $excludeids = array(1,2,9,1
 {
   global $wpdb;
   
-  $sql = "SELECT `u`.`user_login` ";
+  $sql = "SELECT `u`.`user_login`, `u`.`ID` ";
   $sql.= "FROM {$wpdb->users} `u` ";
   $sql.= "LEFT JOIN (SELECT * FROM ". VOTESDBTABLE ." WHERE ". VOTESDBTABLE .".vote_daterange_id = ";
   $sql.= $date_range_id . ") v ON `v`.`user_id` = `u`.`ID` ";

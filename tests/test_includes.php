@@ -62,6 +62,13 @@ function clear_votes_table()
     $wpdb->query($sql);    
 }
 
+function clear_date_range_votes_table()
+{
+  global $wpdb;
+    $sql = "DELETE FROM ". DATERANGEVOTESDBTABLE;
+    $wpdb->query($sql);  
+}
+
 function count_votes()
 {
     global $wpdb;
@@ -73,5 +80,12 @@ function count_date_ranges()
 {
     global $wpdb;
     $sql = "SELECT COUNT(*) FROM " . TIMEFRAMEDBTABLE;
+    return $wpdb->get_var($sql);
+}
+
+function count_date_range_votes()
+{
+    global $wpdb;
+    $sql = "SELECT COUNT(*) FROM " . DATERANGEVOTESDBTABLE;
     return $wpdb->get_var($sql);
 }

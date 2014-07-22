@@ -3,6 +3,7 @@ require ("../../../wp-load.php");
 
 define ('VOTEPREFIX', 'vote-');
 define ('VOTECOMMENTPREFIX', 'vote_comment-');
+define ('DATERANGEVOTEPREFIX', 'votefordaterange');
 
 error_log("\n--NEW PROCESS STARTING--\n", 3, "/var/www/html/portal/images_upload/vote.txt");
 
@@ -13,7 +14,6 @@ function startsWith($haystack, $needle)
 
 function processVote($idstr,$val,&$votes)
 {
-    $retVal = false;
     error_log("--processVote: looking at $val for $idstr\n", 3, "/var/www/html/portal/images_upload/vote.txt");
     if ($val==="1")
     {
@@ -23,9 +23,23 @@ function processVote($idstr,$val,&$votes)
     }
 }
 
+function processDateRangeVote($date_range_id,$user_id)
+{
+  error_log("--processDateRangeVote: looking for date range vote\n", 3, "/var/www/html/portal/images_upload/vote.txt");
+  if (isset($_POST[DATERANGEVOTEPREFIX]) && $_POST[DATERANGEVOTEPREFIX]==="drvote")
+  {
+    error_log("set user vote for date range\n", 3, "/var/www/html/portal/images_upload/vote.txt");
+    md2_add_date_range_vote($date_range_id, $user_id);
+  }
+  else 
+  {
+    error_log("no user vote for date range\n", 3, "/var/www/html/portal/images_upload/vote.txt");
+    md2_delete_date_range_vote($date_range_id, $user_id);
+  }
+}
+
 function processComment($idstr,$val,&$comments)
 {
-    $retVal = false;
     error_log("--processComment: looking at $val for $idstr\n", 3, "/var/www/html/portal/images_upload/vote.txt");
     if (trim($val)!=="")
     {
@@ -94,6 +108,9 @@ if (is_user_logged_in())
             error_log("Setting comment {$comment_text} for user {$user_id} and dr {$date_range_id} and post {$post_id}.\n", 3, "/var/www/html/portal/images_upload/vote.txt");  
             md2_create_vote_comment($user_id, $post_id, $date_range_id, $comment_text);
         }
+        
+        // See if they just voted for the date range.
+        processDateRangeVote($date_range_id,$user_id);
     }
     else 
     {

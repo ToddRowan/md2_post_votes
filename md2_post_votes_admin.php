@@ -173,15 +173,17 @@ function md2_output_votes_by_doctor($id)
  else 
  {
     $novotes = md2_get_users_without_votes($id);
-    echo "<table class=\"vote_results\"><tr><th>Doctor</th><th>Total votes</th></tr>";
+    echo "<table class=\"vote_results\"><tr><th>Doctor</th><th>Total post votes</th><th>Voted 'any'</th></tr>";
 
     foreach ($votes as $vote)
     {
-      echo "<tr><td>".$vote->user_login."</td><td>".$vote->votecount."</td></tr>";
+      echo "<tr><td>".$vote->user_login."</td><td>".$vote->votecount."</td>";
+      echo "<td>" . (md2_did_user_vote_for_date_range($id, $vote->ID)?"X":"") . "</td></tr>";
     }
     foreach ($novotes as $novote)
     {
-      echo "<tr><td>".$novote->user_login."</td><td>0</td></tr>";
+      echo "<tr><td>".$novote->user_login."</td><td>0</td>";
+      echo "<td>" . (md2_did_user_vote_for_date_range($id, $novote->ID)?"X":"") . "</td></tr>";
     }
 
     echo "</table>";
