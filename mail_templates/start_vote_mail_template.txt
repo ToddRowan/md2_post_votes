@@ -4,4 +4,4 @@
 
 <hr />
 
-<p>Do not respond to this email, it has been compiled and sent by the server.</p
+<p>Do not respond to this email, it has been compiled and sent by the server.</p>

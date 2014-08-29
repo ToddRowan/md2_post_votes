@@ -94,8 +94,12 @@ function md2_is_post_eligible_for_date_range($post_id, $date_range_id)
     return count(md2_get_eligible_post_by_id_and_date_range($post_id, $date_range_id))>0;
 }
 
-function md2_populate_eligible_posts_by_date_range($date_range_id)
+function 
+md2_populate_eligible_posts_by_date_range($date_range_id, $delete_first = true)
 {
+    if ($delete_first)
+      md2_delete_eligible_post_by_date_range($date_range_id);
+    
     $el_posts_by_date = md2_get_posts_by_post_date_range($date_range_id);
     $el_posts_by_comment_date = md2_get_posts_by_comment_date_range($date_range_id);
     $all_posts = array_merge($el_posts_by_date, $el_posts_by_comment_date);
