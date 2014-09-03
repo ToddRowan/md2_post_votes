@@ -94,7 +94,7 @@ function md2_do_vote_cron($id)
   if (!is_null($cron_date))
   {
     md2_cron_log("Setting the new cron date\n");
-    md2_add_single_cron_datetime($id, $cron_date);
+    //md2_add_single_cron_datetime($id, $cron_date);
   }
   if (!is_null($upd_fields))
   {

@@ -111,7 +111,7 @@ function md2_activate_date_range_ajax()
       $dtz = md2_get_default_tz();
       $tmp_date = date_create($obj->date_vote_email_sent,$dtz);
       $tmp_date->modify("+6 hours");  
-      md2_add_single_cron_datetime($id, $tmp_date);
+      //md2_add_single_cron_datetime($id, $tmp_date);
     }
     
     $date_fields = array('start_date','end_date','date_of_meet','date_meet_email_sent',

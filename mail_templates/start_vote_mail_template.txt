@@ -1,6 +1,10 @@
-<p><a href="http://www.md2.com/portal/?page_id=2575">Click here</a> to vote on topics for the next MD² Grand Rounds call.</p>
+<p>Good morning,</p>
 
-<p>Cast your votes by __VOTE_END__ and we'll have them ready for the call on __MEET_DATE__.</p> 
+<p>It's almost time for the next Grand Rounds call.</p>
+
+<p><a href="http://www.md2.com/portal/?page_id=2575">Click here</a> to tell us which topics you want to discuss.</p>
+
+<p>Cast your votes by __VOTE_END__ and we'll have the agenda ready for the call on __MEET_DATE__.</p>
 
 <hr />
 

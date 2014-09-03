@@ -3,6 +3,7 @@ define('MD2_START_VOTE_MAIL_TEMPLATE', "start_vote_mail_template.txt");
 define('MD2_SEND_INVITE_MAIL_TEMPLATE', "send_invite_mail_template.txt");
 define('MD2_MAIL_TEMPLATE_SUBFOLDER', 'mail_templates');
 define('MD2_MAIL_DATE_FORMAT', "l, F jS");
+define('MD2_MAIL_SUBJECT', 'MD² Grand Rounds Voting');
 
 function md2_send_cron_related_mails($subject, $mailtext, $attachments = array())
 {
@@ -24,7 +25,7 @@ function md2_send_vote_start_mail($dr)
   $date_of_meet = date_create($dr->date_of_meet,  md2_get_default_tz());
   $vals = array($vote_end->format(MD2_MAIL_DATE_FORMAT), $date_of_meet->format(MD2_MAIL_DATE_FORMAT));
   $msg = do_replace($path, $vals, $tokens); 
-  md2_send_cron_related_mails("Grand Rounds Voting", $msg);
+  md2_send_cron_related_mails(MD2_MAIL_SUBJECT, $msg);
 }
 
 function md2_send_meeting_mail($dr)
