@@ -153,6 +153,13 @@ function md2_get_youngest_archived_date_range()
   return $wpdb->get_row($sql);
 }
 
+function md2_get_youngest_reviewable_date_range()
+{
+  global $wpdb;
+  $sql = "SELECT * FROM " . TIMEFRAMEDBTABLE . " WHERE `process_state` >= " . MD2_STATE_VOTE_COMPLETED . " ORDER BY `end_date` DESC LIMIT 0,1";
+  return $wpdb->get_row($sql);
+}
+
 function md2_get_all_archived_date_range_ids()
 {
   global $wpdb;

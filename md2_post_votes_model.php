@@ -196,3 +196,12 @@ function md2_set_eligible_posts($date_range_id)
     md2_set_eligible_post_selection_status($id, $date_range_id);
   }
 }
+
+function md2_get_who_voted_for_post($post_id, $date_range_id)
+{
+  global $wpdb;
+  $sql .= "SELECT u.user_nicename as name FROM " . VOTESDBTABLE . " v ";
+  $sql .= "INNER JOIN {$wpdb->users} u ON u.id = v.user_id ";
+  $sql .= "WHERE v.post_id = $post_id AND v.vote_daterange_id = $date_range_id";
+  return $wpdb->get_col($sql); 
+}

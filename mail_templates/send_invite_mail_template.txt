@@ -1,5 +1,7 @@
-<p><a href="http://www.md2.com/portal/?page_id=2609&dr=__DR_ID__">Click here</a> to view the agenda and dialing information for the next Grand Rounds on __MEET_DATE__ at __MEET_TIME__</p>
+<p><a href="http://www.md2.com/portal/?page_id=2609&dr=__DR_ID__">Click here</a> to see the agenda and conference line for today's Grand Rounds call.</p>
+
+<p>P.S. Kindly call in from a quiet place and if you have hold music, please don't put our call on hold. The background noise from your phone makes it hard to hear. </p>
 
 <hr />
 
-<p>Do not respond to this email, it has been compiled and sent by the server.</p
+<p>Do not respond to this email, it has been compiled and sent by the server.</p>
