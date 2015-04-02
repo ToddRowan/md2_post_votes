@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<?php
+require("../../../wp-load.php");
+?>
+    <head></head>
+    <body>
+        <h1>Populating votable post table</h1>
+        <?php 
+            echo "<p>About to generate the list and send the email.</p>";
+            md2_do_vote_cron(5);
+            //echo "<p>Posts populated: " . $count ."</p>";
+        ?>
+    </body>
+</html>
